@@ -98,6 +98,7 @@ type Shopable = {
 }
 
 type Cardsable = {
+    cards?: proto.Message.InteractiveMessage.CarouselMessage.cards[];
     subtitle?: string;
 }
 
@@ -145,7 +146,7 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable & WithDimensions)
     | ({
         video: WAMediaUpload
         caption?: string
@@ -153,7 +154,7 @@ export type AnyMediaMessageContent = (
         jpegThumbnail?: string
         /** if set to true, will send as a `video note` */
         ptv?: boolean
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable & WithDimensions)
     | {
         audio: WAMediaUpload
         /** if set to true, will send as a `voice note` */
@@ -170,7 +171,7 @@ export type AnyMediaMessageContent = (
         mimetype: string
         fileName?: string
         caption?: string
-    } & Contextable & Buttonable & Templatable & Interactiveable & Shopable))
+    } & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable))
     & { mimetype?: string } & Editable
 
 export type ButtonReplyInfo = {
@@ -264,7 +265,7 @@ export type AnyRegularMessageContent = (
 	    text: string
         linkPreview?: WAUrlInfo | null
     }
-    & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Listable & Editable)
+    & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable & Listable & Editable)
     | AnyMediaMessageContent
     | ({
         poll: PollMessageOptions
@@ -295,12 +296,7 @@ export type AnyRegularMessageContent = (
         time?: 86400 | 604800 | 2592000
     }
     | {
-        keep: WAMessageKey
-        type: proto.IKeepInChat.KeepType
-        /**
-         * 24 hours, 7 days, 90 days
-         */
-        time?: 86400 | 604800 | 7776000
+     keep: KeepInChatInfo
     }
     | {
      paymentInvite: PaymentInviteInfo
@@ -328,7 +324,7 @@ export type AnyRegularMessageContent = (
         businessOwnerJid?: string
         body?: string
         footer?: string
-    } & Mentionable & Contextable & Interactiveable & Shopable & WithDimensions) 
+    } & Mentionable & Contextable & Interactiveable & Shopable & Cardsable & WithDimensions) 
     | SharePhoneNumber | RequestPhoneNumber
 ) & ViewOnce
 
