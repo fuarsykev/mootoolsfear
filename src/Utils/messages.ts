@@ -739,8 +739,8 @@ export const generateWAMessageContent = async(
 	   const slide = await Promise.all(
         message.cards.map(async slides => {
            const [image, video, product, title, subtitle, caption, footer, interactiveButtons] = slides
-	       ...(image 
-	       ? {
+	       if(image) {
+	         {
 	           header: {
 	               title: title,
 	               subtitle: subtitle,
@@ -756,9 +756,9 @@ export const generateWAMessageContent = async(
 	           nativeFlowMessage: {
 	              buttons: interactiveButtons
 	           }
-	       }
-	       : video
-	       ? {
+	         }
+	       } else if(video) {
+	         {
 	           header: {
 	               title: title,
 	               subtitle: subtitle,
@@ -773,10 +773,10 @@ export const generateWAMessageContent = async(
 	           },
 	           nativeFlowMessage: {
 	              buttons: interactiveButtons
-	           }	          
-	       }
-	       : product
-	       ? {
+	           }
+	         }	          
+	       } else if(product) {
+	         {
 	           header: {
 	               title: title,
 	               subtitle: subtitle,
@@ -798,9 +798,11 @@ export const generateWAMessageContent = async(
 	           nativeFlowMessage: {
 	              buttons: interactiveButtons
 	           }	          
-	       } 
-	       : {}
-	      )
+	         } 
+	       } else {
+	        {}
+	       }
+	     )
 	   }
 	))
 	   const interactiveMessage: proto.Message.IInteractiveMessage = {
