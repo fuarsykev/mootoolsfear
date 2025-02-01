@@ -736,7 +736,8 @@ export const generateWAMessageContent = async(
 	}
 	
 	if('cards' in message && !!message.cards) {
-	   const slide = message.cards.map(({ image, video, product, title, subtitle, caption, footer, interactiveButtons }) => ({
+	   const slide = await Promise.all(
+        message.cards.map(async (({ image, video, product, title, subtitle, caption, footer, interactiveButtons }) => ({
 	       ...(image 
 	       ? {
 	           header: {
@@ -799,7 +800,7 @@ export const generateWAMessageContent = async(
 	       } 
 	       : {}
 	      )
-	   }))
+	   }))))
 	   const interactiveMessage: proto.Message.IInteractiveMessage = {
 	      carouselMessage: WAProto.Message.InteractiveMessage.ShopMessage.fromObject({ 
 	         cards: slide
