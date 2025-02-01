@@ -807,7 +807,7 @@ export const generateWAMessageContent = async(
 	              buttons: interactiveButtons
 	           }	          
 	       } 
-	       : throw new Boom('no content in message', { statusCode: 400 })
+	       : {}
 	      )
 	   }))
 	   const interactiveMessage: proto.Message.IInteractiveMessage = {
