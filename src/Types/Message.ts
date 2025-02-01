@@ -296,7 +296,12 @@ export type AnyRegularMessageContent = (
         time?: 86400 | 604800 | 2592000
     }
     | {
-     keep: KeepInChatInfo
+        keep: WAMessageKey
+        type: proto.Message.KeepInChatMessage.IKeepType
+        /**
+         * 24 hours, 7 days, 90 days
+         */
+        time?: 86400 | 604800 | 7776000
     }
     | {
      paymentInvite: PaymentInviteInfo
