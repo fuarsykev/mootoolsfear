@@ -760,7 +760,7 @@ export const generateWAMessageContent = async(
 	           },
 	           footer: {
 	              text: footer
-	           }
+	           },
 	           nativeFlowMessage: {
 	              buttons: interactiveButtons
 	           }
@@ -778,7 +778,7 @@ export const generateWAMessageContent = async(
 	           },
 	           footer: {
 	              text: footer
-	           }
+	           },
 	           nativeFlowMessage: {
 	              buttons: interactiveButtons
 	           }	          
@@ -802,12 +802,13 @@ export const generateWAMessageContent = async(
 	           },
 	           footer: {
 	              text: footer
-	           }
+	           },
 	           nativeFlowMessage: {
 	              buttons: interactiveButtons
 	           }	          
 	       } 
-	       : throw new Boom('no content in message', { statusCode: 400 }))
+	       : throw new Boom('no content in message', { statusCode: 400 })
+	      )
 	   }))
 	   const interactiveMessage: proto.Message.IInteractiveMessage = {
 	      carouselMessage: WAProto.Message.InteractiveMessage.ShopMessage.fromObject({ 
