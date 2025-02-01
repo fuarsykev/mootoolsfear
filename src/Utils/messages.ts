@@ -737,7 +737,8 @@ export const generateWAMessageContent = async(
 	
 	if('cards' in message && !!message.cards) {
 	   const slide = await Promise.all(
-        message.cards.map(async (({ image, video, product, title, subtitle, caption, footer, interactiveButtons }) => ({
+        message.cards.map(async slides => ({
+           const [image, video, product, title, subtitle, caption, footer, interactiveButtons] = slides
 	       ...(image 
 	       ? {
 	           header: {
