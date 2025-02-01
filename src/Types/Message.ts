@@ -297,7 +297,7 @@ export type AnyRegularMessageContent = (
     }
     | {
         keep: WAMessageKey
-        type: proto.KeepInChat.Type
+        type: number
         /**
          * 24 hours, 7 days, 90 days
          */
