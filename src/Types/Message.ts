@@ -91,14 +91,14 @@ type Interactiveable = {
 }
 
 type Shopable = {
-    shop?: string;
+    shop?: string | number;
     id?: number;
     subtitle?: string;
     media?: boolean;
 }
 
 type Cardsable = {
-    cards?: proto.Message.InteractiveMessage.CarouselMessage.cards[];
+    cards?: string[];
     subtitle?: string;
 }
 
