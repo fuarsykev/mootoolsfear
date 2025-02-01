@@ -409,14 +409,14 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-            const pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview');
-            if (pfpUrl) {
-                const resp = await axios_1.default.get(pfpUrl, { responseType: 'arraybuffer' });
-                if (resp.status === 200) {
-                    m.groupInviteMessage.jpegThumbnail = resp.data;
-                }
-            }
-        }
+			const pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview')
+			if(pfpUrl) {
+				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+				if(resp.status === 200) {
+					m.groupInviteMessage.jpegThumbnail = resp.data
+				}
+			}
+		}
    } else if('pin' in message) {
         m.pinInChatMessage = {};
         m.messageContextInfo = {};
@@ -529,17 +529,7 @@ export const generateWAMessageContent = async(
         m.newsletterAdminInviteMessage.caption = message.inviteAdmin.text;
         m.newsletterAdminInviteMessage.newsletterJid = message.inviteAdmin.jid;
         m.newsletterAdminInviteMessage.newsletterName = message.inviteAdmin.subject;
-        //TODO: use built-in interface and get disappearing mode info etc.
-        //TODO: cache / use store!?
-        if(options.getProfilePicUrl) {
-            const pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview');
-            if (pfpUrl) {
-                const resp = await axios_1.default.get(pfpUrl, { responseType: 'arraybuffer' });
-                if (resp.status === 200) {
-                    m.newsletterAdminInviteMessage.jpegThumbnail = resp.data;
-                }
-            }
-        }
+        m.newsletterAdminInviteMessage.jpegThumbnail = message.inviteAdmin.thumbnail;
    } else if ('requestPayment' in message) {  
        const sticker = message?.requestPayment?.sticker ?
           await prepareWAMessageMedia(
