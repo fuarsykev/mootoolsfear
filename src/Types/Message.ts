@@ -18,9 +18,6 @@ export type WAMessageKey = proto.IMessageKey
 export type WATextMessage = proto.Message.IExtendedTextMessage
 export type WAContextInfo = proto.IContextInfo
 export type WALocationMessage = proto.Message.ILocationMessage
-export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
-    productImage: WAMediaUpload
-}
 export type WAGenericMediaMessage = proto.Message.IVideoMessage | proto.Message.IImageMessage | proto.Message.IAudioMessage | proto.Message.IDocumentMessage | proto.Message.IStickerMessage
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export import WAMessageStubType = proto.WebMessageInfo.StubType
@@ -94,6 +91,7 @@ type Interactiveable = {
 }
 
 type Shopable = {
+    shop?: string;
     id?: number;
     subtitle?: string;
     media?: boolean;
@@ -240,6 +238,7 @@ export type AdminInviteInfo = {
     text: string
     jid: string
     subject: string
+    thumbnail: Buffer
 }
 
 export type OrderInfo = {
@@ -297,7 +296,7 @@ export type AnyRegularMessageContent = (
     }
     | {
         keep: WAMessageKey
-        type: proto.PinInChat.KeepType
+        type: proto.KeepInChat.KeepType
         /**
          * 24 hours, 7 days, 90 days
          */
