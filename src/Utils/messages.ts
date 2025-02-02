@@ -686,17 +686,10 @@ export const generateWAMessageContent = async(
 	          subtitle: message.subtitle,
 	          hasMediaAttachment: message?.media ?? false,
 	       }
-	   }	
-	   
-	   if('media' in message && !!message.media) {
-	       header: interactiveMessage.header = {
-	          ...message,
-	          hasMediaAttachment: message?.media ?? false,
-	       }
 	       		  
 		  Object.assign(interactiveMessage.header, m)	
-	   
-	   }	  
+		  
+	   }
 	   
        if('contextInfo' in message && !!message.contextInfo) {
         	interactiveMessage.contextInfo = message.contextInfo
@@ -740,13 +733,6 @@ export const generateWAMessageContent = async(
 	       header: interactiveMessage.header = {
 	          title: message.title,
 	          subtitle: message.subtitle,
-	          hasMediaAttachment: message?.media ?? false,
-	       }
-	   }
-	   
-	   if('media' in message && !!message.media) {
-	       header: interactiveMessage.header = {
-	          ...message,
 	          hasMediaAttachment: message?.media ?? false,
 	       }
 	       		  
