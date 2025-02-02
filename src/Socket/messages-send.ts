@@ -817,10 +817,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			return message
 		},
 		sendAlbumMessage: async(
-		    jid: string,
-		    medias = [],
-			options = { }
+		    jid,
+		    medias,
+			options
 		) => {
+		    options = { ...options }
 		    let mediaHandle
 			const userJid = authState.creds.me!.id
             for (const media of medias) {
@@ -862,12 +863,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                  jid,
                  { 
                    image: media.image, ...(i === "0" ? { caption } : {}) },
-                 { 
-                     upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
-				        const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
-							mediaHandle = up.handle
-							return up
-						} 
+                    { 
+                       upload: waUploadToServer 
 				    }
                  )
               } else if (media.video) {
@@ -875,12 +872,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                  jid,
                  { 
                    video: media.video, ...(i === "0" ? { caption } : {}) },
-                 { 
-                     upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
-				        const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
-							mediaHandle = up.handle
-							return up
-						} 
+                    { 
+                       upload: waUploadToServer 
 				    }
                  )      
               }
