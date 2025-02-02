@@ -671,10 +671,7 @@ export const generateWAMessageContent = async(
 	          body: interactiveMessage.body = {
 	              text: message.caption
 	          }
-	      }
-	      
-		  Object.assign(interactiveMessage.header, m)	       
-
+	      }	            
 	   }
 	   
 	   if('footer' in message && !!message.footer) {
@@ -689,7 +686,8 @@ export const generateWAMessageContent = async(
 	          ...message,
 	          hasMediaAttachment: message?.media ?? false,
 	       }
-	   }		  
+	   }	
+		  Object.assign(interactiveMessage.header, m)		  
 	   
        if('contextInfo' in message && !!message.contextInfo) {
         	interactiveMessage.contextInfo = message.contextInfo
@@ -721,9 +719,6 @@ export const generateWAMessageContent = async(
 	              text: message.caption
 	          }
 	      }
-	      
-		  Object.assign(interactiveMessage.header, m)	       
-
 	   }
 	   
 	   if('footer' in message && !!message.footer) {
@@ -739,6 +734,7 @@ export const generateWAMessageContent = async(
 	          hasMediaAttachment: message?.media ?? false,
 	       }
 	   }		  
+		  Object.assign(interactiveMessage.header, m)	
 	   
        if('contextInfo' in message && !!message.contextInfo) {
         	interactiveMessage.contextInfo = message.contextInfo
