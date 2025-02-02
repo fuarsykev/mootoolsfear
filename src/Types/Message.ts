@@ -132,6 +132,11 @@ export type PollMessageOptions = {
     toAnnouncementGroup?: boolean
 }
 
+export type Album = {
+     imageCount?: number;
+     videoCount?: number;
+}
+
 type SharePhoneNumber = {
     sharePhoneNumber: boolean
 }
@@ -343,6 +348,11 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 	disappearingMessagesInChat: boolean | number
 }
 
+export type AnyAlbumMediaMessage = {
+   image?: WAMediaUpload;
+   video?: WAMediaUpload;
+}
+
 export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
 
 type MinimalRelayOptions = {
@@ -414,6 +424,7 @@ export type MessageContentGenerationOptions = MediaGenerationOptions & {
 	getProfilePicUrl?: (jid: string, type: 'image' | 'preview') => Promise<string | undefined>
 }
 export type MessageGenerationOptions = MessageContentGenerationOptions & MessageGenerationOptionsFromContent
+export type AlbumMessageGenerationOptions = MediaGenerationOptions & MiscMessageGenerationOptions
 
 /**
  * Type of message upsert
