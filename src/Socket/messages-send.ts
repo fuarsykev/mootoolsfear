@@ -826,13 +826,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	        let mediaHandle
 	        for (const { image, video } of medias) {
                if (!image && !video) throw new TypeError(`medias[i] must have image or video property`)
-               if (image && (!image.url && !Buffer.isBuffer(image))) throw new TypeError(`medias[i].image must be object with url or buffer`)
-               if (video && (!video.url && !Buffer.isBuffer(video))) throw new TypeError(`medias[i].video must be object with url or buffer`)
             }
 
             if (medias.length < 2) throw new RangeError("Minimum 2 media")
 
-            const secsDelay = !isNaN(options.delay) ? options.delay : 500
+            const secsDelay = 500
             delete caption
             delete options.delay
             
@@ -888,7 +886,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                message.message.messageContextInfo = {
                     messageAssociation: {
                         associationType: 1,
-                        parentMessageKey: album.key
+                        parentMessageKey: album.key!
                     }
                }
 
