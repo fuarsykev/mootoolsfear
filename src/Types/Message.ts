@@ -342,6 +342,11 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 	disappearingMessagesInChat: boolean | number
 }
 
+export interface Media {
+    image?: WAMediaUpload;
+    video?: WAMediaUpload;
+}
+
 export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
 
 type MinimalRelayOptions = {
