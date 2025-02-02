@@ -472,8 +472,22 @@ export const generateWAMessageContent = async(
 			}
 		})
    } else if ('order' in message) {
-    	m.orderMessage = WAProto.Message.OrderMessage.fromObject({
-    	    ...message.order
+      const { imageMessage } = await prepareWAMessageMedia(
+	      { image: message?.order?.thumbnail },
+		  options
+	  )
+      m.orderMessage = WAProto.Message.OrderMessage.fromObject({
+            orderId: message.order.id,
+            thumbnail: imageMessage,
+            itemCount: message.order.itemCount,
+            status: message.order.status,
+            surface: message.order.surface,
+            orderTitle: message.order.title,
+            message: message.order.text,
+            sellerJid: message.order.seller,
+            token: message.order.token,
+            totalAmount1000: message.order.amount,
+            totalCurrencyCode: message.order.currency
         }) 
    } else if('listReply' in message) {
 		m.listResponseMessage = { ...message.listReply }
@@ -658,6 +672,8 @@ export const generateWAMessageContent = async(
 	              text: message.caption
 	          }
 	      }
+	      
+		  Object.assign(interactiveMessage.header, m)	       
 
 	   }
 	   
@@ -673,7 +689,6 @@ export const generateWAMessageContent = async(
 	          ...message,
 	          hasMediaAttachment: message?.media ?? false,
 	       }
-		  Object.assign(interactiveMessage.header, m)	       
 	   }		  
 	   
        if('contextInfo' in message && !!message.contextInfo) {
@@ -689,7 +704,7 @@ export const generateWAMessageContent = async(
 	
 	if('shop' in message && !!message.shop) {
 	    const interactiveMessage: proto.Message.IInteractiveMessage = {
-	      shopStorefrontMessage: WAProto.Message.InteractiveMessage.ShopMessage.fromObject({ 
+	      shopStorefrontMessage: WAProto.Message.InteractiveMessage.ShopMessage.create({ 
 	         surface: message.shop,
 	         id: message.id
 	      })
@@ -706,6 +721,8 @@ export const generateWAMessageContent = async(
 	              text: message.caption
 	          }
 	      }
+	      
+		  Object.assign(interactiveMessage.header, m)	       
 
 	   }
 	   
@@ -721,7 +738,6 @@ export const generateWAMessageContent = async(
 	          subtitle: message.subtitle,
 	          hasMediaAttachment: message?.media ?? false,
 	       }
-		  Object.assign(interactiveMessage.header, m)	       
 	   }		  
 	   
        if('contextInfo' in message && !!message.contextInfo) {
