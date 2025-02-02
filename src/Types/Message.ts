@@ -243,17 +243,17 @@ export type AdminInviteInfo = {
 }
 
 export type OrderInfo = {
-    orderId: number;
-    thumbnail: Buffer;
+    id: number;
+    thumbnail: WAMediaUpload;
     itemCount: number;
     status: number;
     surface: number;
-    orderTitle: string;
-    message: string;
-    sellerJid: string;
+    title: string;
+    text: string;
+    seller: string;
     token: string;
-    totalAmount1000: number;
-    totalCurrencyCode: string;
+    amount: number;
+    currency: string;
 }
 
 export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
