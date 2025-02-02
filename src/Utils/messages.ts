@@ -426,9 +426,16 @@ export const generateWAMessageContent = async(
         m.messageContextInfo.messageAddOnDurationInSecs = message.type === 1 ? message.time || 86400 : 0;
    } else if('keep' in message) {
         m.keepInChatMessage = {};
+        m.messageContextInfo = {};
         m.keepInChatMessage.key = message.keep;
         m.keepInChatMessage.keepType = message.type;
         m.keepInChatMessage.timestampMs = Date.now();
+        m.messageContextInfo = {
+               messageAssociation: {
+                  associationType: 1,
+                  parentMessageKey: message.keep
+            }
+        }
    } else if('call' in message) {
       m = { 
         scheduledCallCreationMessage: {
@@ -537,6 +544,12 @@ export const generateWAMessageContent = async(
          messageSecret: message.event.messageSecret || randomBytes(32), 
       }
       m.eventMessage = { ...message.event }
+   } else if('album' in message) {
+      m.messageContextInfo: {}
+      m.albumMessage: WAProto.Message.AlbumMessage.fromObject({
+          expectedImageCount: message?.imageCount ?? 0,
+          expectedVideoCount: message?.videoCount ?? 0
+      })
    } else if('inviteAdmin' in message) {
         m.newsletterAdminInviteMessage = {};
         m.newsletterAdminInviteMessage.inviteExpiration = message.inviteAdmin.inviteExpiration;
