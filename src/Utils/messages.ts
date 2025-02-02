@@ -545,8 +545,8 @@ export const generateWAMessageContent = async(
       }
       m.eventMessage = { ...message.event }
    } else if('album' in message) {
-      m.messageContextInfo: {}
-      m.albumMessage: WAProto.Message.AlbumMessage.fromObject({
+      m.messageContextInfo = {}
+      m.albumMessage = WAProto.Message.AlbumMessage.fromObject({
           expectedImageCount: message?.imageCount ?? 0,
           expectedVideoCount: message?.videoCount ?? 0
       })
