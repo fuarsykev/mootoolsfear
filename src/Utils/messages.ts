@@ -704,7 +704,7 @@ export const generateWAMessageContent = async(
 	
 	if('shop' in message && !!message.shop) {
 	    const interactiveMessage: proto.Message.IInteractiveMessage = {
-	      shopStorefrontMessage: WAProto.Message.InteractiveMessage.ShopMessage.create({ 
+	      shopStorefrontMessage: WAProto.Message.InteractiveMessage.ShopMessage.fromObject({ 
 	         surface: message.shop,
 	         id: message.id
 	      })
