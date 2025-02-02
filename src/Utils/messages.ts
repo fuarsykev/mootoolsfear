@@ -544,12 +544,6 @@ export const generateWAMessageContent = async(
          messageSecret: message.event.messageSecret || randomBytes(32), 
       }
       m.eventMessage = { ...message.event }
-   } else if('album' in message) {
-      m.messageContextInfo = {}
-      m.albumMessage = WAProto.Message.AlbumMessage.fromObject({
-          expectedImageCount: message?.imageCount ?? 0,
-          expectedVideoCount: message?.videoCount ?? 0
-      })
    } else if('inviteAdmin' in message) {
         m.newsletterAdminInviteMessage = {};
         m.newsletterAdminInviteMessage.inviteExpiration = message.inviteAdmin.inviteExpiration;
