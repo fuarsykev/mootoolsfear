@@ -832,16 +832,16 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
             const secsDelay = 500
             delete caption
-            delete options.delay
+            delete secsDelay
             
+            const albumMessage: proto.Message.IAlbumMessage = {                 
+                      expectedImageCount: medias.filter(media => media.image).length,
+                      expectedVideoCount: medias.filter(media => media.video).length
+            }
             const album = await generateWAMessageFromContent(
                    jid,
                    {
-                      messageContextInfo: {},
-                      albumMessage: {
-                         expectedImageCount: medias.filter(media => media.image).length,
-                         expectedVideoCount: medias.filter(media => media.video).length
-                      }
+                      albumMessage
                    },              
                 { ...options, userJid }
             )
@@ -859,6 +859,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                                  ...(i === "0" ? { caption } : {})
                               },
                               { 
+                                 userJid,
                                  upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
 							            const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
 							            mediaHandle = up.handle
@@ -873,7 +874,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                                  video: media.video, 
                                  ...(i === "0" ? { caption } : {})
                               },
-                              { 
+                              {
+                                 userJid, 
                                  upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
 							            const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
 							            mediaHandle = up.handle
