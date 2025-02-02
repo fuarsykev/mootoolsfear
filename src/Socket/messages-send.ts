@@ -818,8 +818,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		},
 		sendAlbumMessage: async(
 		    jid: string,
-		    medias: string[] = [],
-			options: MiscMessageGenerationOptions = { }
+		    medias = [],
+			options = { }
 		) => {
 		    let mediaHandle
 			const userJid = authState.creds.me!.id
