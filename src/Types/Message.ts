@@ -348,7 +348,7 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 	disappearingMessagesInChat: boolean | number
 }
 
-export type AnyAlbumMediaMessage = {
+interface AnyAlbumMediaMessage {
    image?: WAMediaUpload;
    video?: WAMediaUpload;
 }
@@ -424,7 +424,10 @@ export type MessageContentGenerationOptions = MediaGenerationOptions & {
 	getProfilePicUrl?: (jid: string, type: 'image' | 'preview') => Promise<string | undefined>
 }
 export type MessageGenerationOptions = MessageContentGenerationOptions & MessageGenerationOptionsFromContent
-export type AlbumMessageGenerationOptions = MediaGenerationOptions & MiscMessageGenerationOptions
+interface AlbumMessageGenerationOptions { 
+    caption?: string;
+    quoted?: WAMessage;
+}
 
 /**
  * Type of message upsert
