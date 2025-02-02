@@ -91,8 +91,8 @@ type Interactiveable = {
 }
 
 type Shopable = {
-    shop?: string | number;
-    id?: number;
+    shop?: proto.Message.InteractiveMessage.ShopMessage.Surface;
+    id?: string;
     subtitle?: string;
     media?: boolean;
 }
@@ -179,7 +179,6 @@ export type ButtonReplyInfo = {
     id: string
     index: number
 }
-
 
 export type GroupInviteInfo = {
     inviteCode: string
