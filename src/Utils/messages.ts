@@ -690,8 +690,7 @@ export const generateWAMessageContent = async(
 	   
 	   if('media' in message && !!message.media) {
 	       header: interactiveMessage.header = {
-	          title: message.title,
-	          subtitle: message.subtitle,
+	          ...message,
 	          hasMediaAttachment: message?.media ?? false,
 	       }
 	       		  
@@ -747,8 +746,7 @@ export const generateWAMessageContent = async(
 	   
 	   if('media' in message && !!message.media) {
 	       header: interactiveMessage.header = {
-	          title: message.title,
-	          subtitle: message.subtitle,
+	          ...message,
 	          hasMediaAttachment: message?.media ?? false,
 	       }
 	       		  
