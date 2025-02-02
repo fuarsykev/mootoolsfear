@@ -47,10 +47,10 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			msg.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
 		}
 		
-		if (msg?.deviceSentMessage?.message?.buttonsMessage) {
+		if (msg?.viewOnceMessage?.message?.buttonsMessage) {
 			msg = JSON.parse(JSON.stringify(msg))
   
-			msg.deviceSentMessage!.message!.buttonsMessage!.headerType = proto.Message.ButtonsMessage.HeaderType.EMPTY
+			msg.viewOnceMessage!.message!.buttonsMessage!.headerType = proto.Message.ButtonsMessage.HeaderType.EMPTY
 		}
   
 		if (msg?.buttonsMessage) {
