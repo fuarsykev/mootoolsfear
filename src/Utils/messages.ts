@@ -426,16 +426,9 @@ export const generateWAMessageContent = async(
         m.messageContextInfo.messageAddOnDurationInSecs = message.type === 1 ? message.time || 86400 : 0;
    } else if('keep' in message) {
         m.keepInChatMessage = {};
-        m.messageContextInfo = {};
         m.keepInChatMessage.key = message.keep;
         m.keepInChatMessage.keepType = message.type;
         m.keepInChatMessage.timestampMs = Date.now();
-        m.messageContextInfo = {
-               messageAssociation: {
-                  associationType: 1,
-                  parentMessageKey: message.keep
-            }
-        }
    } else if('call' in message) {
       m = { 
         scheduledCallCreationMessage: {
