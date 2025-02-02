@@ -3,7 +3,7 @@ import { Boom } from '@hapi/boom'
 import NodeCache from 'node-cache'
 import { proto } from '../../WAProto'
 import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
-import { AnyMessageContent, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
+import { AlbumMessageGenerationOptions, AnyAlbumMediaMessage, AnyMessageContent, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
 import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
 import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
@@ -817,13 +817,10 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			return message
 		},
 		sendAlbumMessage: async(
-		    jid,
-		    medias,
-			options
+		    jid: string,
+		    medias: AnyAlbumMediaMessage = [],
+			options: AlbumMessageGenerationOptions = { }
 		) => {
-		    options = { ...options }
-		    let mediaHandle
-			const userJid = authState.creds.me!.id
             for (const media of medias) {
             
                if(!media.image && !media.video) throw new TypeError(`medias[i] must have image or video property`)
@@ -841,19 +838,18 @@ export const makeMessagesSocket = (config: SocketConfig) => {
            delete options.caption
            delete options.delay
 
-           const album = await generateWAMessageFromContent(
+           const album = await generateWAMessage(
                jid,
                {
-                  messageContextInfo: {},
-                  albumMessage: {
-                     expectedImageCount: medias.filter(media => media.image).length,
-                     expectedVideoCount: medias.filter(media => media.video).length
+                  album: {
+                     imageCount: medias.filter(media => media.image).length || 0,
+                     videoCount: medias.filter(media => media.video).length || 0
                   }
                },
-             { userJid, ...options }
+             { ...options }
            )
 
-           await relayMessage(jid, album.message, { messageId: album.key.id })
+           await relayMessage(jid, album.message!, { messageId: album.key.id })
 
            for (const i in medias) {
               const media = medias[i]
@@ -861,19 +857,29 @@ export const makeMessagesSocket = (config: SocketConfig) => {
               if (media.image) {
                 message = await generateWAMessage(
                  jid,
-                 { 
-                   image: media.image, ...(i === "0" ? { caption } : {}) },
-                    { 
-                       upload: waUploadToServer 
-				    }
+                   { 
+                    image: media.image, ...(i === "0" ? { caption } : {}) 
+                   },
+                   { 
+                     upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+							const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
+							mediaHandle = up.handle
+							return up
+					 } 
+				   }
                  )
               } else if (media.video) {
                 message = await generateWAMessage(
-                 jid,
-                 { 
-                   video: media.video, ...(i === "0" ? { caption } : {}) },
+                   jid,
                     { 
-                       upload: waUploadToServer 
+                     video: media.video, ...(i === "0" ? { caption } : {})
+                    },
+                    { 
+                       upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+							const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
+							mediaHandle = up.handle
+							return up
+					   } 
 				    }
                  )      
               }
@@ -885,7 +891,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                  }  
               }
 
-              await relayMessage(jid, message.message, { messageId: message.key.id })
+              await relayMessage(jid, message.message!, { messageId: message.key.id })
               await delay(delayInSecs)
            }
            return album
