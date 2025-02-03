@@ -486,11 +486,12 @@ export const generateWAMessageContent = async(
             totalCurrencyCode: message.order.currency
         }) 
    } else if('album' in message) {
-      m.messageContextInfo = {};
-      m.albumMessage = {};
-      m.albumMessage.expectedImageCount = message.imageCount
-      m.albumMessage.expectedVideoCount = message.videoCount
-      m.messageContextInfo.messageSecret = randomBytes(32);
+    	m = { 
+    	      albumMessage: { 
+    	         expectedImageCount: message.imageCount, 
+    	         expectedVideoCount: message.videoCount 
+    	      } 
+    	};
    } else if('listReply' in message) {
 		m.listResponseMessage = { ...message.listReply }
    } else if('poll' in message) {
