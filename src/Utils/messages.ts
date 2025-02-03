@@ -667,7 +667,8 @@ export const generateWAMessageContent = async(
 	      if('caption' in message) {
 	          body: interactiveMessage.body = {
 	              text: message.caption
-	          },
+	          }
+	          
 	          header: interactiveMessage.header = {
 	              title: message.title,
 	              subtitle: message.subtitle,
@@ -721,7 +722,8 @@ export const generateWAMessageContent = async(
 	      if('caption' in message) {
 	          body: interactiveMessage.body = {
 	              text: message.caption
-	          },
+	          }
+	          
 	          header: interactiveMessage.header = {
 	              title: message.title,
 	              subtitle: message.subtitle,
