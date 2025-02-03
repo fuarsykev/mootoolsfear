@@ -782,7 +782,7 @@ export const generateWAMessageContent = async(
     }
     
     if('album' in message && !!message.album) {
-    	m = { albumMessage: m };
+    	m = { viewOnceMessage: { message: { albumMessage: m } } };
     }
 
 	if('mentions' in message && message.mentions?.length) {
