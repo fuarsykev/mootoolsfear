@@ -691,7 +691,10 @@ export const generateWAMessageContent = async(
 	          title: message.title,
 	          subtitle: message.subtitle,
 	          hasMediaAttachment: message?.media ?? false,
-	       }		  
+	       }
+	       		  
+		      Object.assign(interactiveMessage.header, m)
+	      		  
 	   }
 	   
        if('contextInfo' in message && !!message.contextInfo) {
@@ -746,7 +749,10 @@ export const generateWAMessageContent = async(
 	          title: message.title,
 	          subtitle: message.subtitle,
 	          hasMediaAttachment: message?.media ?? false,
-	       }	   
+	       }
+	       		  
+		      Object.assign(interactiveMessage.header, m)	
+		     	      	   
 	   }
 	   
        if('contextInfo' in message && !!message.contextInfo) {
@@ -767,7 +773,7 @@ export const generateWAMessageContent = async(
 			title: message.title,
 			footerText: message.footer,
 			description: message.text,
-			listType: message.hasOwnProperty("listType") ? message.listType : proto.Message.ListMessage.ListType.PRODUCT_LIST
+			listType: message.hasOwnProperty("listType") ? message.listType : proto.Message.ListMessage.ListType.SINGLE_SELECT
 		}
 
 		m = { listMessage }
