@@ -834,9 +834,10 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             const album = await generateWAMessage(
                    jid,
                    {
+                      text: caption,
                       album: {
-                          imageCount: medias.filter(media => media.image).length || 0,
-                          videoCount: medias.filter(media => media.video).length || 0
+                          expectedImageCount: medias.filter(media => media.image).length || 0,
+                          expectedVideoCount: medias.filter(media => media.video).length || 0
                       }
                    },              
                 { userJid, quoted: options?.quoted }
