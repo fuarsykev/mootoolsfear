@@ -1,10 +1,9 @@
 
 import { Boom } from '@hapi/boom'
 import NodeCache from 'node-cache'
-import { randomBytes } from 'crypto'
 import { proto } from '../../WAProto'
 import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
-import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
+import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey, WAProto } from '../Types'
 import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
 import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
@@ -764,7 +763,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		refreshMediaConn,
 		getUSyncDevices,
 		createParticipantNodes,
-	    	waUploadToServer,
+	    waUploadToServer,
 		fetchPrivacySettings,
 		updateMediaMessage: async(message: proto.IWebMessageInfo) => {
 			const content = assertMediaContent(message.message)
@@ -819,6 +818,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		},
 		sendAlbumMessage: async(
 		    jid: string,
+		    caption: string,
 		    medias: Media[],
 		    options: MiscMessageGenerationOptions = { }
 		) => {
@@ -834,36 +834,55 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             const album = await generateWAMessageFromContent(
                    jid,
                    {
-                      viewOnceMessage: {
-                         message: {
-                            messageContextInfo: {
-                                messageSecret: randomBytes(32)
-                            },
-                            albumMessage: {
-                               expectedImageCount: medias.filter(media => media.image).length || 0,
-                               expectedVideoCount: medias.filter(media => media.video).length || 0,
-                               ...options,
-                            }
-                         }
-                      }
+                      albumMessage: WAProto.Message.AlbumMessage.fromObject({
+                          expectedImageCount: medias.filter(media => media.image).length || 0,
+                          expectedVideoCount: medias.filter(media => media.video).length || 0,
+                          ...options,
+                      })
                    },              
                 { userJid, ...options }
             )
             
             await relayMessage(jid, album.message!, { messageId: album.key.id! })
 
-            for (const content of medias) {
-                 let msg = await generateWAMessage(
-                      jid,
-                      content, 
-                      { 
-                          upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
-							    const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
-							    mediaHandle = up.handle
-							    return up
-						  } 
-                      }
-                 )
+            for (const content in medias) {
+                 const media = medias[content]
+                 let msg
+                 if (media.image) {
+                      msg = await generateWAMessage(
+                         jid,
+                         { 
+                             image: media.image, 
+                             ...(content === "0" 
+                             ? { caption }
+                             : {}),
+                         },
+                         { 
+                             upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+							      const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
+							      mediaHandle = up.handle
+							      return up
+						     } 
+                         }
+                      )
+                 } else if (media.video) {
+                      msg = await generateWAMessage(
+                         jid,
+                         { 
+                             video: media.video, 
+                             ...(content === "0" 
+                             ? { caption }
+                             : {}),
+                         },
+                         { 
+                             upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+							      const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
+							      mediaHandle = up.handle
+							      return up
+						     } 
+                         }
+                      )
+                 }
 
                message.message.messageContextInfo = {
                     messageAssociation: {
