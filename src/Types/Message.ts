@@ -92,6 +92,7 @@ type Templatable = {
 type Interactiveable = {
     /** add buttons to the message  */
     interactiveButtons?: proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton[]
+    title?: string;
     subtitle?: string;
     media?: boolean;
 }
@@ -99,6 +100,7 @@ type Interactiveable = {
 type Shopable = {
     shop?: proto.Message.InteractiveMessage.ShopMessage.Surface;
     id?: string;
+    title?: string;
     subtitle?: string;
     media?: boolean;
 }
