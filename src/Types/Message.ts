@@ -73,8 +73,7 @@ type Ephemeral = {
 }
 
 type Album = {
-      imageCount?: number;
-      videoCount?: number;
+      album?: boolean;
 }
 
 type Buttonable = {
