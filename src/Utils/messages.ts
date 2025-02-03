@@ -673,10 +673,7 @@ export const generateWAMessageContent = async(
 	              title: message.title,
 	              subtitle: message.subtitle,
 	              hasMediaAttachment: message?.media ?? false,
-	          }
-	       		  
-		      Object.assign(interactiveMessage.header, m)	
-		      
+	          }		      
 	      }	            
 	   }
 	   
@@ -691,11 +688,11 @@ export const generateWAMessageContent = async(
 	          title: message.title,
 	          subtitle: message.subtitle,
 	          hasMediaAttachment: message?.media ?? false,
-	       }
-	       		  
-		      Object.assign(interactiveMessage.header, m)
-	      		  
+	       }	      		  
 	   }
+	       		  
+		      Object.assign(interactiveMessage.header, m)	
+		      
 	   
        if('contextInfo' in message && !!message.contextInfo) {
         	interactiveMessage.contextInfo = message.contextInfo
@@ -731,10 +728,7 @@ export const generateWAMessageContent = async(
 	              title: message.title,
 	              subtitle: message.subtitle,
 	              hasMediaAttachment: message?.media ?? false,
-	          }
-	       		  
-		      Object.assign(interactiveMessage.header, m)	
-		      
+	          }		      
 	      }
 	   }
 	   
@@ -749,11 +743,11 @@ export const generateWAMessageContent = async(
 	          title: message.title,
 	          subtitle: message.subtitle,
 	          hasMediaAttachment: message?.media ?? false,
-	       }
+	       }		     	      	   
+	   }
 	       		  
 		      Object.assign(interactiveMessage.header, m)	
-		     	      	   
-	   }
+	   
 	   
        if('contextInfo' in message && !!message.contextInfo) {
         	interactiveMessage.contextInfo = message.contextInfo
