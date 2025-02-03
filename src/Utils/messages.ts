@@ -781,13 +781,8 @@ export const generateWAMessageContent = async(
     	m = { lottieStickerMessage: { message: m } };
     }
     
-    if('album' in message) {
-    	m = { 
-    	      albumMessage: { 
-    	         expectedImageCount: message.imageCount, 
-    	         expectedVideoCount: message.videoCount 
-    	      } 
-    	};
+    if('album' in message && !!message.album) {
+    	m = { albumMessage: m };
     }
 
 	if('mentions' in message && message.mentions?.length) {
