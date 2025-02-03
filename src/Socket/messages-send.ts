@@ -839,7 +839,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                           videoCount: medias.filter(media => media.video).length || 0
                       }
                    },              
-                { ...options, userJid }
+                { userJid, quoted: options?.quoted }
             )
             
             await relayMessage(jid, album.message!, { messageId: album.key.id! })
