@@ -72,10 +72,6 @@ type Ephemeral = {
       ephemeral?: boolean;
 }
 
-type Album = {
-      album?: boolean;
-}
-
 type Buttonable = {
     /** add buttons to the message  */
     buttons?: proto.Message.ButtonsMessage.IButton[]
