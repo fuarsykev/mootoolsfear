@@ -818,7 +818,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		},
 		sendAlbumMessage: async(
 		    jid: string,
-		    caption: string,
 		    medias: Media[],
 		    options: MiscMessageGenerationOptions = { }
 		) => {
@@ -831,7 +830,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             if (medias.length < 2) throw new RangeError("Minimum 2 media")
             const secsDelay = 500 
                        
-            const album: any = await generateWAMessageFromContent(
+            const album = await generateWAMessageFromContent(
                    jid,
                    {
                       albumMessage: proto.Message.AlbumMessage.create({
@@ -840,47 +839,24 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                           ...options,
                       })
                    },              
-                { userJid, quoted: options?.quoted }
+                { userJid, ...options }
             )
             
             await relayMessage(jid, album.message!, { messageId: album.key.id! })
 
-            for (const i in medias) {
-               const media = medias[i]
-               let message
-               if (media.image) {
-                   message = await generateWAMessage(
-                              jid,
-                              {
-                                 image: media.image, 
-                                 ...(i === "0" ? { caption } : {})
-                              },
-                              { 
-                                 userJid,
-                                 upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
-							            const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
-							            mediaHandle = up.handle
-							            return up
-						         } 
-                              }
-                           )
-               } else if (media.video) {
-                   message = await generateWAMessage(
-                              jid,
-                              {
-                                 video: media.video, 
-                                 ...(i === "0" ? { caption } : {})
-                              },
-                              {
-                                 userJid, 
-                                 upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
-							            const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
-							            mediaHandle = up.handle
-							            return up
-						         } 
-                              }
-                           )
-               }
+            for (const content of medias as Media[]) {
+                 let msg = await generateWAMessage(
+                      jid,
+                      content, 
+                      { 
+                          userJid,
+                          upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+							    const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
+							    mediaHandle = up.handle
+							    return up
+						  } 
+                      }
+                 )
 
                message.message.messageContextInfo = {
                     messageAssociation: {
@@ -889,7 +865,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     }
                }
 
-               await relayMessage(jid, message.message!, { messageId: message.key.id! })
+               await relayMessage(jid, msg.message!, { messageId: msg.key.id! })
                await delay(secsDelay)
             }
             
