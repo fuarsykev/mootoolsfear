@@ -307,7 +307,6 @@ export type AnyRegularMessageContent = (
          */
         time?: 86400 | 604800 | 7776000
     }
-    | 
     | {
      album: Albuminfo
     }
