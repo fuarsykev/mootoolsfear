@@ -48,6 +48,11 @@ export interface WAUrlInfo {
     originalThumbnailUrl?: string
 }
 
+export interface Media {
+    image?: WAMediaUpload;
+    video?: WAMediaUpload;
+}
+
 // types to generate WA messages
 type Mentionable = {
     /** list of jids that are mentioned in the accompanying text */
@@ -148,7 +153,7 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable & Media & WithDimensions)
     | ({
         video: WAMediaUpload
         caption?: string
@@ -156,7 +161,7 @@ export type AnyMediaMessageContent = (
         jpegThumbnail?: string
         /** if set to true, will send as a `video note` */
         ptv?: boolean
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Cardsable & Media & WithDimensions)
     | {
         audio: WAMediaUpload
         /** if set to true, will send as a `voice note` */
@@ -342,11 +347,6 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 	delete: WAMessageKey
 } | {
 	disappearingMessagesInChat: boolean | number
-}
-
-export interface Media {
-    image?: WAMediaUpload;
-    video?: WAMediaUpload;
 }
 
 export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
