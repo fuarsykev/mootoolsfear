@@ -4,7 +4,7 @@ import NodeCache from 'node-cache'
 import { proto } from '../../WAProto'
 import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
 import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
-import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
+import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
 import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
 import { makeNewsletterSocket } from './newsletter'
@@ -829,19 +829,15 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             }
 
             if (medias.length < 2) throw new RangeError("Minimum 2 media")
-
-            const secsDelay = 500
-            delete caption
-            delete secsDelay
-            
-            const albumMessage: proto.Message.IAlbumMessage = {                 
-                      expectedImageCount: medias.filter(media => media.image).length,
-                      expectedVideoCount: medias.filter(media => media.video).length
-            }
-            const album = await generateWAMessageFromContent(
+            const secsDelay = 500 
+                       
+            const album = await generateWAMessage(
                    jid,
                    {
-                      albumMessage
+                      album: {
+                          imageCount: medias.filter(media => media.image).length || 0,
+                          videoCount: medias.filter(media => media.video).length || 0
+                      }
                    },              
                 { ...options, userJid }
             )
