@@ -485,13 +485,6 @@ export const generateWAMessageContent = async(
             totalAmount1000: message.order.amount,
             totalCurrencyCode: message.order.currency
         }) 
-   } else if('album' in message) {
-    	m = { 
-    	      albumMessage: { 
-    	         expectedImageCount: message.imageCount, 
-    	         expectedVideoCount: message.videoCount 
-    	      } 
-    	};
    } else if('listReply' in message) {
 		m.listResponseMessage = { ...message.listReply }
    } else if('poll' in message) {
@@ -786,6 +779,15 @@ export const generateWAMessageContent = async(
     
     if('lottie' in message && !!message.lottie) {
     	m = { lottieStickerMessage: { message: m } };
+    }
+    
+    if('album' in message) {
+    	m = { 
+    	      albumMessage: { 
+    	         expectedImageCount: message.imageCount, 
+    	         expectedVideoCount: message.videoCount 
+    	      } 
+    	};
     }
 
 	if('mentions' in message && message.mentions?.length) {
