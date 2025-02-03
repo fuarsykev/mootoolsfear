@@ -780,10 +780,6 @@ export const generateWAMessageContent = async(
     if('lottie' in message && !!message.lottie) {
     	m = { lottieStickerMessage: { message: m } };
     }
-    
-    if('album' in message && !!message.album) {
-    	m = { viewOnceMessage: { message: { albumMessage: m } } };
-    }
 
 	if('mentions' in message && message.mentions?.length) {
 		const [messageType] = Object.keys(m)
