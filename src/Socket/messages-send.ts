@@ -835,7 +835,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                    {
                       albumMessage: proto.Message.AlbumMessage.create({
                           expectedImageCount: medias.filter(media => media.image).length || 0,
-                          expectedVideoCount: medias.filter(media => media.video).length || 0
+                          expectedVideoCount: medias.filter(media => media.video).length || 0,
                           ...options,
                       })
                    },              
@@ -849,7 +849,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                       jid,
                       content, 
                       { 
-                          userJid,
                           upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
 							    const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
 							    mediaHandle = up.handle
