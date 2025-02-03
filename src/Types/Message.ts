@@ -67,8 +67,14 @@ type ViewOnceV2 = {
 type ViewOnceV2Extension = {
      viewOnceV2Extension?: boolean;
 }
+
 type Ephemeral = {
       ephemeral?: boolean;
+}
+
+type Album = {
+      imageCount?: number;
+      videoCount?: number;
 }
 
 type Buttonable = {
@@ -105,6 +111,7 @@ type Cardsable = {
 type Editable = {
   edit?: WAMessageKey
 }
+
 type Listable = {    
     /** Sections of the List */
     sections?: proto.Message.ListMessage.ISection[]
@@ -198,11 +205,6 @@ export type KeepInChatInfo = {
     key: WAMessageKey;
     type?: number;
     time?: number;
-}
-
-export type Albuminfo = {
-    imageCount?: number;
-    videoCount?: number;
 }
 
 export type CallCreationInfo = {
@@ -306,9 +308,6 @@ export type AnyRegularMessageContent = (
          * 24 hours, 7 days, 90 days
          */
         time?: 86400 | 604800 | 7776000
-    }
-    | {
-     album: Albuminfo
     }
     | {
      paymentInvite: PaymentInviteInfo
