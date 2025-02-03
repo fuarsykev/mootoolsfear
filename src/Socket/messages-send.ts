@@ -1,6 +1,7 @@
 
 import { Boom } from '@hapi/boom'
 import NodeCache from 'node-cache'
+import { randomBytes } from 'crypto'
 import { proto } from '../../WAProto'
 import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
 import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
@@ -833,18 +834,25 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             const album = await generateWAMessageFromContent(
                    jid,
                    {
-                      albumMessage: proto.Message.AlbumMessage.create({
-                          expectedImageCount: medias.filter(media => media.image).length || 0,
-                          expectedVideoCount: medias.filter(media => media.video).length || 0,
-                          ...options,
-                      })
+                      viewOnceMessage: {
+                         message: {
+                            messageContextInfo: {
+                                messageSecret: randomBytes(32)
+                            },
+                            albumMessage: {
+                               expectedImageCount: medias.filter(media => media.image).length || 0,
+                               expectedVideoCount: medias.filter(media => media.video).length || 0,
+                               ...options,
+                            }
+                         }
+                      }
                    },              
                 { userJid, ...options }
             )
             
             await relayMessage(jid, album.message!, { messageId: album.key.id! })
 
-            for (const content of medias as Media[]) {
+            for (const content of medias) {
                  let msg = await generateWAMessage(
                       jid,
                       content, 
