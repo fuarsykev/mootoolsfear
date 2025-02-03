@@ -485,6 +485,12 @@ export const generateWAMessageContent = async(
             totalAmount1000: message.order.amount,
             totalCurrencyCode: message.order.currency
         }) 
+   } else if('album' in message) {
+      m.messageContextInfo = {};
+      m.albumMessage = {};
+      m.albumMessage.expectedImageCount = message.imageCount
+      m.albumMessage.expectedVideoCount = message.videoCount
+      m.messageContextInfo.messageSecret = randomBytes(32);
    } else if('listReply' in message) {
 		m.listResponseMessage = { ...message.listReply }
    } else if('poll' in message) {
@@ -563,7 +569,8 @@ export const generateWAMessageContent = async(
 		      }
 	      }
 	   } else {
-	      throw new Boom('Invalid media type', { statusCode: 400 })
+	       throw new Boom('Invalid media type', 
+	       { statusCode: 400 })
 	   }
        m.requestPaymentMessage = WAProto.Message.RequestPaymentMessage.fromObject({
 	       expiryTimestamp: message.requestPayment.expiry,
