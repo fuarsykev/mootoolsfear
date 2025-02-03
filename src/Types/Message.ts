@@ -200,6 +200,11 @@ export type KeepInChatInfo = {
     time?: number;
 }
 
+export type Albuminfo = {
+    imageCount?: number;
+    videoCount?: number;
+}
+
 export type CallCreationInfo = {
     time?: number;
     title?: string;
@@ -301,6 +306,10 @@ export type AnyRegularMessageContent = (
          * 24 hours, 7 days, 90 days
          */
         time?: 86400 | 604800 | 7776000
+    }
+    | 
+    | {
+     album: Albuminfo
     }
     | {
      paymentInvite: PaymentInviteInfo
