@@ -890,8 +890,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					additionalAttributes.edit = isJidNewsLetter(jid) ? '3' : '1'
 				} else if(isPinMsg) {
                     additionalAttributes.edit = '2';
-                } else if(isKeepMsg) {
-                    additionalAttributes.edit = '6';
                 } else if (isButtonsMsg) {
                 } else if(isListMsg) {
                 } else if(isTemplateButtons) {
