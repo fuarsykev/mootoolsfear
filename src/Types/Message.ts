@@ -351,6 +351,13 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 	disappearingMessagesInChat: boolean | number
 }
 
+export interface AlbumInfo {
+   albumMessage?: {
+      expectedImageCount?: number
+      expectedVideoCount?: number
+   }
+}
+
 export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
 
 type MinimalRelayOptions = {
