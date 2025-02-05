@@ -355,7 +355,7 @@ export interface AlbumInfo {
    albumMessage?: {
       expectedImageCount?: number | null;
       expectedVideoCount?: number | null;
-   } as WAProto.Message
+   }
 }
 
 export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
