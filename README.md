@@ -1162,19 +1162,23 @@ Of course, replace ``` xyz ``` with an actual ID.
 ## Channel
 - To get newsletter info from code
     ```ts
-    // https://whatsapp.com/channel/key
-    const key = '123wedss972279'
-    const result = await sock.getNewsletterInfo(key)
+    const key = '123@newsletter'
+    const result = await sock.newsletterMetadata('jid', key)
+    
+    
+    //https://whatsapp.com/channel/key
+    const key = '0028UWS81...'
+    const result = await sock.newsletterMetadata('invite', key)
     console.log(result)
     ```
 - To create newsletter
     ```ts
-    const result = await sock.newsLetterCreate('Name newsletter', 'Description news letter', 'ALL') // ALL, BASIC, NONE for setting reaction code
+    const result = await sock.newsLetterCreate('Name newsletter', 'Description news letter')
     console.log(result)
     ```
-- To get subscribed newsletters
+- To update subscribed newsletters
     ```ts
-    const result = await sock.getSubscribedNewsletters()
+    const result = await sock.subscribeNewsletterUpdates('123@newsletter')
     console.log(result)
     ```
 - To toggle mute newsletters
