@@ -841,7 +841,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			        delete quotedContent.contextInfo
 		    }
 		    
-		    const albums: AlbumInfo as WAProto.Message = {
+		    const albums as WAProto.Message: AlbumInfo = {
                       albumMessage: {
                           expectedImageCount: medias.filter(media => media.image).length || 0,
                           expectedVideoCount: medias.filter(media => media.video).length || 0,
