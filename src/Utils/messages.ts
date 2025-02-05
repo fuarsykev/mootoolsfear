@@ -382,10 +382,6 @@ export const generateWAMessageContent = async(
        if('contextInfo' in message && !!message.contextInfo) {
         	m.locationMessage.contextInfo = message.contextInfo
        }
-        
-       if('mentions' in message && !!message.mentions) {
-        	m.locationMessage.contextInfo = { mentionedJid: message.mentions }
-       }
    } else if('react' in message) {
 		if(!message.react.senderTimestampMs) {
 			message.react.senderTimestampMs = Date.now()
