@@ -150,7 +150,7 @@ export const makeNewsletterSocket = (config: SocketConfig) => {
 			await newsletterWMexQuery(jid, QueryIds[type.toUpperCase()])
 		},
 
-		newsletterCreate: async(name: string, description: string, reaction_codes: string) => {
+		newsletterCreate: async(name: string, description: string) => {
 			//TODO: Implement TOS system wide for Meta AI, communities, and here etc.
 			/**tos query */
 			await query({
