@@ -831,8 +831,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             if (medias.length < 2) throw new RangeError("Minimum 2 media")
             const secsDelay = 500 
             
-            let { quoted } = options
-            let quotedMsg = normalizeMessageContent(quoted.message)!
+            let { quoted } = options || null
+            let quotedMsg = normalizeMessageContent(quoted?.message)!
 		    const msgType = getContentType(quotedMsg)!
 		    quotedMsg = proto.Message.fromObject({ [msgType]: quotedMsg[msgType] })
 
@@ -849,8 +849,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                              {
                                 contextInfo: {
                                    stanzaId: quoted.key.id,
-                                   participant: jidNormalizedUser(quoted.key.fromMe ? authState.creds.me!.id : (quoted.participant || quoted.key.participant || quoted.key.remoteJid)!),
-                                   ...(jid !== quoted.key.remoteJid
+                                   participant: jidNormalizedUser(quoted?.key?.fromMe ? authState.creds.me!.id : (quoted?.participant || quoted?.key?.participant || quoted?.key?.remoteJid)!),
+                                   ...(jid !== quoted?.key?.remoteJid
                                      ? {
                                         remoteJid: jid,
                                      }
