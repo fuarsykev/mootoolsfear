@@ -848,7 +848,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                           ...(options?.quoted ? 
                              {
                                 contextInfo: {
-                                   stanzaId: quoted.key.id,
+                                   stanzaId: quoted?.key?.id,
                                    participant: jidNormalizedUser(quoted?.key?.fromMe ? authState.creds.me!.id : (quoted?.participant || quoted?.key?.participant || quoted?.key?.remoteJid)!),
                                    ...(jid !== quoted?.key?.remoteJid
                                      ? {
