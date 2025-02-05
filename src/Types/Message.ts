@@ -48,11 +48,6 @@ export interface WAUrlInfo {
     originalThumbnailUrl?: string
 }
 
-export interface Media {
-    image?: WAMediaUpload;
-    video?: WAMediaUpload;
-}
-
 // types to generate WA messages
 type Mentionable = {
     /** list of jids that are mentioned in the accompanying text */
@@ -349,13 +344,6 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 	delete: WAMessageKey
 } | {
 	disappearingMessagesInChat: boolean | number
-}
-
-export interface AlbumInfo {
-   albumMessage?: {
-      expectedImageCount?: number | null;
-      expectedVideoCount?: number | null;
-   }
 }
 
 export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
