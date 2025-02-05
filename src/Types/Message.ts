@@ -353,8 +353,8 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 
 export interface AlbumInfo {
    albumMessage?: {
-      expectedImageCount?: number
-      expectedVideoCount?: number
+      expectedImageCount?: number | null;
+      expectedVideoCount?: number | null;
    }
 }
 
