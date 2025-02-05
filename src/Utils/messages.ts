@@ -378,6 +378,14 @@ export const generateWAMessageContent = async(
 		}
    } else if('location' in message) {
 		m.locationMessage = WAProto.Message.LocationMessage.fromObject(message.location)
+		
+       if('contextInfo' in message && !!message.contextInfo) {
+        	m.locationMessage.contextInfo = message.contextInfo
+       }
+        
+       if('mentions' in message && !!message.mentions) {
+        	m.locationMessage.contextInfo = { mentionedJid: message.mentions }
+       }
    } else if('react' in message) {
 		if(!message.react.senderTimestampMs) {
 			message.react.senderTimestampMs = Date.now()
@@ -471,6 +479,14 @@ export const generateWAMessageContent = async(
 				productImage: imageMessage,
 			}
 		})
+		
+        if('contextInfo' in message && !!message.contextInfo) {
+        	m.productMessage.contextInfo = message.contextInfo
+        }
+        
+        if('mentions' in message && !!message.mentions) {
+        	m.productMessage.contextInfo = { mentionedJid: message.mentions }
+        }
    } else if ('order' in message) {
       m.orderMessage = WAProto.Message.OrderMessage.fromObject({
             orderId: message.order.id,
@@ -847,14 +863,11 @@ export const generateWAMessageFromContent = (
 		let quotedMsg = normalizeMessageContent(quoted.message)!
 		const msgType = getContentType(quotedMsg)!
 		// strip any redundant properties
-		quotedMsg = proto.Message.fromObject({ [msgType]: quotedMsg[msgType] })
+        quotedMsg = proto.Message.fromObject({ [msgType]: quotedMsg[msgType] })		
 
-		const quotedContent = quotedMsg[msgType]
-		if(typeof quotedContent === 'object' && quotedContent && 'contextInfo' in quotedContent) {
-			delete quotedContent.contextInfo
-		}
+		const quotedContent = quotedMsg[msgType]		
 
-		const contextInfo: proto.IContextInfo = innerMessage[key].contextInfo || { }
+		const contextInfo: proto.IContextInfo = (msgType ==='requestPaymentMessage' ? innerMessage[key]?.noteMessage?.extendedTextMessage?.contextInfo : innerMessage[key]?.noteMessage?.stickerMessage ? innerMessage[key]?.noteMessage?.stickerMessage?.contextInfo : innerMessage[key].contextInfo) || { }
 		contextInfo.participant = jidNormalizedUser(participant!)
 		contextInfo.stanzaId = quoted.key.id
 		contextInfo.quotedMessage = quotedMsg
