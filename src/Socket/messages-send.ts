@@ -3,7 +3,7 @@ import { Boom } from '@hapi/boom'
 import NodeCache from 'node-cache'
 import { proto } from '../../WAProto'
 import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
-import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey, WAProto } from '../Types'
+import { AlbumInfo, AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey, WAProto } from '../Types'
 import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getContentType, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, normalizeMessageContent, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
 import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
@@ -815,6 +815,123 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			])
 
 			return message
+		},
+		sendAlbumMessage: async(
+		    jid: string,
+		    caption: string,
+		    medias: Media[],
+		    options: MiscMessageGenerationOptions = { }
+		) => {
+			const userJid = authState.creds.me!.id
+	        let mediaHandle
+	        for (const { image, video } of medias) {
+               if (!image && !video) throw new TypeError(`medias[i] must have image or video property`)
+            }
+
+            if (medias.length < 2) throw new RangeError("Minimum 2 media")
+            const secsDelay = 500 
+            
+            let { quoted } = options
+            let quotedMsg = normalizeMessageContent(quoted.message)!
+		    const msgType = getContentType(quotedMsg)!
+		    quotedMsg = proto.Message.fromObject({ [msgType]: quotedMsg[msgType] })
+
+		    const quotedContent = quotedMsg[msgType]
+		    if(typeof quotedContent === 'object' && quotedContent && 'contextInfo' in quotedContent) {
+			        delete quotedContent.contextInfo
+		    }
+		    
+		    const albums: AlbumInfo = {
+                      albumMessage: {
+                          expectedImageCount: medias.filter(media => media.image).length || 0,
+                          expectedVideoCount: medias.filter(media => media.video).length || 0,
+                          ...(options?.quoted ? 
+                             {
+                                contextInfo: {
+                                   stanzaId: quoted.key.id,
+                                   participant: jidNormalizedUser(quoted.key.fromMe ? authState.creds.me!.id : (quoted.participant || quoted.key.participant || quoted.key.remoteJid)!),
+                                   ...(jid !== quoted.key.remoteJid
+                                     ? {
+                                        remoteJid: jid,
+                                     }
+                                     : {}
+                                   ),
+                                   quotedMessage: quotedMsg,
+                                   expiration: options.ephemeralExpiration,
+                                   ...options,
+                                }
+                             }
+                             : {}
+                          ),
+                          ...options,
+                      }
+                  }
+		    
+            const album = await relayMessage(
+                  jid, 
+                  albums.albumMessage, 
+               { ...options }
+            )
+                        
+            const key = {
+			   remoteJid: jid,
+			   fromMe: true,
+			   id: album!,
+		    }
+
+            for (const content in medias) {
+                 const media = medias[content]
+                 let msg
+                 if (media.image) {
+                      msg = await generateWAMessage(
+                         jid,
+                         { 
+                             image: media.image, 
+                             ...(content === "0" 
+                             ? { caption }
+                             : {}),
+                         },
+                         { 
+                             userJid,
+                             upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+							      const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
+							      mediaHandle = up.handle
+							      return up
+						     } 
+                         }
+                      )
+                 } else if (media.video) {
+                      msg = await generateWAMessage(
+                         jid,
+                         { 
+                             video: media.video, 
+                             ...(content === "0" 
+                             ? { caption }
+                             : {}),
+                         },
+                         { 
+                             userJid,
+                             upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+							      const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
+							      mediaHandle = up.handle
+							      return up
+						     } 
+                         }
+                      )
+                 }
+
+               msg.message.messageContextInfo = {
+                    messageAssociation: {
+                        associationType: 1,
+                        parentMessageKey: key!
+                    }
+               }
+
+               await relayMessage(jid, msg.message!, { messageId: msg.key.id! })
+               await delay(secsDelay)
+            }
+            
+            return album                      
 		},
 		sendMessage: async(
 			jid: string,
