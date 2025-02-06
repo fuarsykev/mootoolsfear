@@ -863,7 +863,7 @@ export const generateWAMessageFromContent = (
 
 		const quotedContent = quotedMsg[msgType]		
 
-		const contextInfo: proto.IContextInfo = (msgType ==='requestPaymentMessage' ? innerMessage[key]?.noteMessage?.extendedTextMessage?.contextInfo : innerMessage[key]?.noteMessage?.stickerMessage ? innerMessage[key]?.noteMessage?.stickerMessage?.contextInfo : innerMessage[key].contextInfo) || { }
+		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? innerMessage[key]?.noteMessage?.extendedTextMessage?.contextInfo : innerMessage[key]?.noteMessage?.stickerMessage ? innerMessage[key]?.noteMessage?.stickerMessage?.contextInfo : innerMessage[key].contextInfo) || { }
 		contextInfo.participant = jidNormalizedUser(participant!)
 		contextInfo.stanzaId = quoted.key.id
 		contextInfo.quotedMessage = quotedMsg
