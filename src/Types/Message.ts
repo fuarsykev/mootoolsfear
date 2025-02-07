@@ -365,6 +365,7 @@ export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
 export interface Media {
    image?: WAMediaUpload;
    video?: WAMediaUpload
+}
 
 type MinimalRelayOptions = {
     /** override the message ID with a custom provided string */
