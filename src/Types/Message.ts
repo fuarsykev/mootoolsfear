@@ -140,7 +140,7 @@ export type PollMessageOptions = {
 
 export type PollResultMessage = {
     name: string
-    votes: string[]
+    votes: proto.Message.PollResultSnapshotMessage.PollVote[]
     messageSecret?: Uint8Array
 }
 
