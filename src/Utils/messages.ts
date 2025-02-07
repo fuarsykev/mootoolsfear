@@ -382,7 +382,7 @@ export const generateWAMessageContent = async(
        if('contextInfo' in message && !!message.contextInfo) {
         	m.locationMessage.contextInfo = message.contextInfo
        }
-   } else if('location' in message) {
+   } else if('liveLocation' in message) {
 		m.liveLocationMessage = WAProto.Message.LiveLocationMessage.fromObject(message.liveLocation)
 		
        if('contextInfo' in message && !!message.contextInfo) {
