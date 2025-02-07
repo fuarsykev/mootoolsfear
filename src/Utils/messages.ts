@@ -533,14 +533,6 @@ export const generateWAMessageContent = async(
 			selectableOptionsCount: message.poll.selectableCount,
 			options: message.poll.values.map(optionName => ({ optionName })),
 		}
-        
-        if('contextInfo' in message && !!message.contextInfo) {
-        	pollCreationMessage.contextInfo = message.contextInfo
-        }
-        
-        if('mentions' in message && !!message.mentions) {
-        	pollCreationMessage.contextInfo = { mentionedJid: message.mentions }
-        }
 
 		if(message.poll.toAnnouncementGroup) {
 			// poll v2 is for community announcement groups (single select and multiple)
@@ -565,24 +557,16 @@ export const generateWAMessageContent = async(
 			messageSecret: message.pollResult.messageSecret || randomBytes(32),
 		}
 		
-		const pollResults = {
+		const pollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes.map(({ name, voteCount }) => ({
-		       optionName: name,
+		    pollVotes: message.pollResult.votes.map(({ optionName, voteCount }) => ({
+		       optionName: optionName,
 		       optionVoteCount: voteCount
 		    })
 		  )
 		}
         
-        if('contextInfo' in message && !!message.contextInfo) {
-        	pollResults.contextInfo = message.contextInfo
-        }
-        
-        if('mentions' in message && !!message.mentions) {
-        	pollResults.contextInfo = { mentionedJid: message.mentions }
-        }
-        
-     m.pollResultSnapshotMessage = pollResults
+     m.pollResultSnapshotMessage = pollResultSnapshotMessage
 		
    } else if('event' in message) {
       m.messageContextInfo = {
