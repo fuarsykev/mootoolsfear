@@ -18,6 +18,7 @@ export type WAMessageKey = proto.IMessageKey
 export type WATextMessage = proto.Message.IExtendedTextMessage
 export type WAContextInfo = proto.IContextInfo
 export type WALocationMessage = proto.Message.ILocationMessage
+export type WALiveLocationMessage = proto.Message.ILiveLocationMessage
 export type WAGenericMediaMessage = proto.Message.IVideoMessage | proto.Message.IImageMessage | proto.Message.IAudioMessage | proto.Message.IDocumentMessage | proto.Message.IStickerMessage
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export import WAMessageStubType = proto.WebMessageInfo.StubType
@@ -135,6 +136,16 @@ export type PollMessageOptions = {
     /** 32 byte message secret to encrypt poll selections */
     messageSecret?: Uint8Array
     toAnnouncementGroup?: boolean
+    /** add contextInfo to the message */
+    contextInfo?: proto.IContextInfo
+}
+
+export type PollResultMessage = {
+    name: string
+    votes: string[]
+    messageSecret?: Uint8Array
+    /** add contextInfo to the message */
+    contextInfo?: proto.IContextInfo
 }
 
 type SharePhoneNumber = {
@@ -273,6 +284,9 @@ export type AnyRegularMessageContent = (
     | AnyMediaMessageContent
     | ({
         poll: PollMessageOptions
+    }
+    | {
+        pollResult: PollResultMessage
     } & Mentionable & Contextable & Buttonable & Templatable  & Editable)
     | {
         contacts: {
@@ -282,6 +296,9 @@ export type AnyRegularMessageContent = (
     }
     | {
         location: WALocationMessage
+    }
+    | {
+        liveLocation: WALiveLocationMessage
     }
     | { react: proto.Message.IReactionMessage }
     | {
