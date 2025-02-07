@@ -136,16 +136,12 @@ export type PollMessageOptions = {
     /** 32 byte message secret to encrypt poll selections */
     messageSecret?: Uint8Array
     toAnnouncementGroup?: boolean
-    /** add contextInfo to the message */
-    contextInfo?: proto.IContextInfo
 }
 
 export type PollResultMessage = {
     name: string
     votes: string[]
     messageSecret?: Uint8Array
-    /** add contextInfo to the message */
-    contextInfo?: proto.IContextInfo
 }
 
 type SharePhoneNumber = {
