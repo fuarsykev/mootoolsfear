@@ -382,6 +382,12 @@ export const generateWAMessageContent = async(
        if('contextInfo' in message && !!message.contextInfo) {
         	m.locationMessage.contextInfo = message.contextInfo
        }
+   } else if('location' in message) {
+		m.liveLocationMessage = WAProto.Message.LiveLocationMessage.fromObject(message.liveLocation)
+		
+       if('contextInfo' in message && !!message.contextInfo) {
+        	m.liveLocationMessage.contextInfo = message.contextInfo
+       }
    } else if('react' in message) {
 		if(!message.react.senderTimestampMs) {
 			message.react.senderTimestampMs = Date.now()
@@ -527,6 +533,14 @@ export const generateWAMessageContent = async(
 			selectableOptionsCount: message.poll.selectableCount,
 			options: message.poll.values.map(optionName => ({ optionName })),
 		}
+        
+        if('contextInfo' in message && !!message.contextInfo) {
+        	pollCreationMessage.contextInfo = message.contextInfo
+        }
+        
+        if('mentions' in message && !!message.mentions) {
+        	pollCreationMessage.contextInfo = { mentionedJid: message.mentions }
+        }
 
 		if(message.poll.toAnnouncementGroup) {
 			// poll v2 is for community announcement groups (single select and multiple)
@@ -540,6 +554,36 @@ export const generateWAMessageContent = async(
 				m.pollCreationMessage = pollCreationMessage
 			}
 		}
+   } else if('pollResult' in message) {
+   
+        if(!Array.isArray(message.pollResult.votes)) {
+			throw new Boom('Invalid poll votes', { statusCode: 400 })
+		}
+		
+		m.messageContextInfo = {
+			// encKey
+			messageSecret: message.pollResult.messageSecret || randomBytes(32),
+		}
+		
+		const pollResults = {
+		    name: message.pollResult.name,
+		    pollVotes: message.pollResult.votes.map(({ name, voteCount }) => ({
+		       optionName: name,
+		       optionVoteCount: voteCount
+		    })
+		  )
+		}
+        
+        if('contextInfo' in message && !!message.contextInfo) {
+        	pollResults.contextInfo = message.contextInfo
+        }
+        
+        if('mentions' in message && !!message.mentions) {
+        	pollResults.contextInfo = { mentionedJid: message.mentions }
+        }
+        
+     m.pollResultSnapshotMessage = pollResults
+		
    } else if('event' in message) {
       m.messageContextInfo = {
          messageSecret: message.event.messageSecret || randomBytes(32), 
@@ -863,7 +907,7 @@ export const generateWAMessageFromContent = (
 
 		const quotedContent = quotedMsg[msgType]		
 
-		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? innerMessage[key]?.noteMessage?.extendedTextMessage?.contextInfo : innerMessage[key]?.noteMessage?.stickerMessage ? innerMessage[key]?.noteMessage?.stickerMessage?.contextInfo : innerMessage[key].contextInfo) || { }
+		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage?.contextInfo : innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage ? innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage?.contextInfo : innerMessage[key].contextInfo) || { }
 		contextInfo.participant = jidNormalizedUser(participant!)
 		contextInfo.stanzaId = quoted.key.id
 		contextInfo.quotedMessage = quotedMsg
