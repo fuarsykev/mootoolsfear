@@ -3,8 +3,8 @@ import { Boom } from '@hapi/boom'
 import NodeCache from 'node-cache'
 import { proto } from '../../WAProto'
 import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
-import { AnyMessageContent, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
-import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
+import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
+import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
 import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
 import { makeNewsletterSocket } from './newsletter'
@@ -816,6 +816,83 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 			return message
 		},
+		sendAlbumMessage: async(
+		    jid: string, 
+		    caption: string,
+		    medias: Media[], 
+		    options: MiscMessageGenerationOptions = { }
+		) => {
+            const userJid = authState.creds.me!.id;
+            for (const media of medias) {
+               if (!media.image && !media.video) throw new TypeError(`medias[i] must have image or video property`)
+            }
+            if (medias.length < 2) throw new RangeError("Minimum 2 media")
+
+            const album = await generateWAMessageFromContent(
+                  jid,
+                  {
+                     albumMessage: {
+                          expectedImageCount: medias.filter(media => media.image).length,
+                          expectedVideoCount: medias.filter(media => media.video).length,
+                          ...options
+                     }
+                  },
+               { userJid, ...options }
+            );
+
+            await relayMessage(jid, album.message!,
+            { messageId: album.key.id })
+
+            for (const i in medias) {
+               const media = medias[i]
+               let msg
+               let mediaHandle;
+                if (media.image) {
+                     msg = await generateWAMessage(
+                         jid,
+                         { 
+                             image: media.image, 
+                             ...(i === "0" ? { caption } : {}) 
+                         },
+                         { 
+                             upload: async (readStream, opts) => {
+                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsLetter)(jid) });
+                                mediaHandle = up.handle;
+                                return up;
+                             }, 
+                         }
+                     )
+                } else if (media.video) {
+                     msg = await generateWAMessage(
+                         jid,
+                         { 
+                             video: media.video, 
+                              ...(i === "0" ? { caption } : {}) 
+                         },
+                         { 
+                             upload: async (readStream, opts) => {
+                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsLetter)(jid) });
+                                mediaHandle = up.handle;
+                                return up;
+                             }, 
+                         }
+                     )
+                }
+
+                msg.message.messageContextInfo = {
+                   messageAssociation: {
+                      associationType: 1,
+                      parentMessageKey: album.key!
+                   }
+                }
+
+                await relayMessage(jid, msg.message!,
+                { messageId: msg.key.id })
+                
+                await delay(500)
+            }
+           return album
+        },
 		sendMessage: async(
 			jid: string,
 			content: AnyMessageContent,
