@@ -841,7 +841,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             );
 
             await relayMessage(jid, album.message!,
-            { messageId: album.key.id })
+            { messageId: album.key.id! })
 
             for (const i in medias) {
                const media = medias[i]
@@ -855,8 +855,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                              ...(i === "0" ? { caption } : {}) 
                          },
                          { 
+                             userJid,
                              upload: async (readStream, opts) => {
-                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsLetter)(jid) });
+                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) });
                                 mediaHandle = up.handle;
                                 return up;
                              }, 
@@ -870,8 +871,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                               ...(i === "0" ? { caption } : {}) 
                          },
                          { 
+                             userJid,
                              upload: async (readStream, opts) => {
-                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsLetter)(jid) });
+                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) });
                                 mediaHandle = up.handle;
                                 return up;
                              }, 
@@ -887,7 +889,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                 }
 
                 await relayMessage(jid, msg.message!,
-                { messageId: msg.key.id })
+                { messageId: msg.key.id! })
                 
                 await delay(500)
             }
