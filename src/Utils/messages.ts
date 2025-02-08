@@ -567,11 +567,11 @@ export const generateWAMessageContent = async(
 		}   
 		   
         if('contextInfo' in message && !!message.contextInfo) {
-        	m?.pollResultSnapshotMessage?.contextInfo = message.contextInfo
+            m.pollResultSnapshotMessage.contextInfo = message.contextInfo
         }
         
         if('mentions' in message && !!message.mentions) {
-        	m?.pollResultSnapshotMessage?.contextInfo = { mentionedJid: message.mentions }
+        	m.pollResultSnapshotMessage.contextInfo = { mentionedJid: message.mentions }
         }
         
      m.pollResultSnapshotMessage = pollResultSnapshotMessage
