@@ -559,12 +559,20 @@ export const generateWAMessageContent = async(
 		
 		const pollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes.map(({ optionName, optionVoteCount }) => ({
-		       optionName: optionName,
-		       optionVoteCount: optionVoteCount
+		    pollVotes: message.pollResult.votes.map(res => ({
+		       optionName: res[0],
+		       optionVoteCount: res[1]
 		    })
 		  )
 		}
+        
+        if('contextInfo' in message && !!message.contextInfo) {
+        	pollResultSnapshotMessage.contextInfo = message.contextInfo
+        }
+        
+        if('mentions' in message && !!message.mentions) {
+        	pollResultSnapshotMessage.contextInfo = { mentionedJid: message.mentions }
+        }
         
      m.pollResultSnapshotMessage = pollResultSnapshotMessage
 		
@@ -890,7 +898,10 @@ export const generateWAMessageFromContent = (
         quotedMsg = proto.Message.fromObject({ [msgType]: quotedMsg[msgType] })		
 
 		const quotedContent = quotedMsg[msgType]		
-
+        if(typeof quotedContent === 'object' && quotedContent && 'contextInfo' in quotedContent) {
+			delete quotedContent.contextInfo
+		}
+		
 		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage?.contextInfo : innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage ? innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage?.contextInfo : innerMessage[key].contextInfo) || { }
 		contextInfo.participant = jidNormalizedUser(participant!)
 		contextInfo.stanzaId = quoted.key.id
