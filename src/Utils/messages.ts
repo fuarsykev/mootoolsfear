@@ -559,7 +559,7 @@ export const generateWAMessageContent = async(
 		
 		const pollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes.map(option: string[] => ({
+		    pollVotes: message.pollResult.votes.map(option => ({
 		       optionName: option[0],
 		       optionVoteCount: option[1]
 		    })
