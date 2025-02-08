@@ -557,21 +557,21 @@ export const generateWAMessageContent = async(
 			messageSecret: message.pollResult.messageSecret || randomBytes(32),
 		}
 		
-		const pollResultSnapshotMessage = {
+		const pollResultSnapshotMessage: proto.Message.IPollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes.map((option) => ({
+		    pollVotes: message.pollResult.votes!.map((option) => ({
 		       optionName: option[0],
 		       optionVoteCount: option[1]
 		    })
 		  )
-		}
-        
+		}   
+		   
         if('contextInfo' in message && !!message.contextInfo) {
-        	pollResultSnapshotMessage.contextInfo = message.contextInfo
+        	m.pollResultSnapshotMessage.contextInfo = message.contextInfo
         }
         
         if('mentions' in message && !!message.mentions) {
-        	pollResultSnapshotMessage.contextInfo = { mentionedJid: message.mentions }
+        	m.pollResultSnapshotMessage.contextInfo = { mentionedJid: message.mentions }
         }
         
      m.pollResultSnapshotMessage = pollResultSnapshotMessage
