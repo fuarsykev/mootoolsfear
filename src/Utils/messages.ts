@@ -471,7 +471,7 @@ export const generateWAMessageContent = async(
         case 'interactive':
             m.interactiveResponseMessage = {
                  body: {
-                    text: message.buttonReply.body,
+                    text: message.buttonReply.text,
                     format: proto.Message.InteractiveResponseMessage.Body.Format.EXTENSIONS_1 
                  }, 
                  nativeFlowResponseMessage: {
@@ -572,9 +572,9 @@ export const generateWAMessageContent = async(
 		
 		const pollResultSnapshotMessage: proto.Message.IPollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes!.map(([optionName, optionVoteCount]) => ({
-		          optionName,
-		          optionVoteCount
+		    pollVotes: message.pollResult.votes!.map((option) => ({
+		          optionName: option[0],
+		          optionVoteCount: option[1]
 		       })
 		    ),
 		}
@@ -618,7 +618,7 @@ export const generateWAMessageContent = async(
 		             stanzaId: options?.quoted?.key?.id,
 		             participant: options?.quoted?.key?.participant,
 		             quotedMessage: options?.quoted?.message,
-		             ...message?.contextInfo,
+		             ...message?.requestPayment?.contextInfo,
 		         }
 	          }
 	      }
@@ -630,7 +630,7 @@ export const generateWAMessageContent = async(
 		             stanzaId: options?.quoted?.key?.id,
 		             participant: options?.quoted?.key?.participant,
 		             quotedMessage: options?.quoted?.message,
-		             ...message?.contextInfo,
+		             ...message?.requestPayment?.contextInfo,
 		          }
 		      }
 	      }
