@@ -468,6 +468,19 @@ export const generateWAMessageContent = async(
 				type: proto.Message.ButtonsResponseMessage.Type.DISPLAY_TEXT,
 			}
 			break
+        case 'interactive':
+            m.interactiveResponseMessage = {
+                 body: {
+                    text: message.buttonReply.body,
+                    format: proto.Message.InteractiveResponseMessage.Body.Format.EXTENSIONS_1 
+                 }, 
+                 nativeFlowResponseMessage: {
+                    name: message.buttonReply.nativeFlow.name, 
+                    paramsJson: message.buttonReply.nativeFlow.paramsJson, 
+                    version: message.buttonReply.nativeFlow.version
+                 }
+            }
+            break        
 		}
    } else if('product' in message) {
 		const { imageMessage } = await prepareWAMessageMedia(
@@ -559,13 +572,21 @@ export const generateWAMessageContent = async(
 		
 		const pollResultSnapshotMessage: proto.Message.IPollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes!.map((option) => ({
-		          optionName: option[0],
-		          optionVoteCount: option[1]
+		    pollVotes: message.pollResult.votes!.map(([optionName, optionVoteCount]) => ({
+		          optionName,
+		          optionVoteCount
 		       })
 		    ),
-		    ...message
 		}
+		
+		
+        if('contextInfo' in message && !!message.contextInfo) {
+        	pollResultSnapshotMessage.contextInfo = message.contextInfo
+        }
+        
+        if('mentions' in message && !!message.mentions) {
+        	pollResultSnapshotMessage.contextInfo = { mentionedJid: message.mentions }
+        }
         
      m.pollResultSnapshotMessage = pollResultSnapshotMessage
 		
@@ -593,14 +614,24 @@ export const generateWAMessageContent = async(
 	      notes = {
 	          stickerMessage: {
 	             ...sticker?.stickerMessage,
-	             contextInfo: message?.requestPayment?.contextInfo
+	             contextInfo: {
+		             stanzaId: options?.quoted?.key?.id,
+		             participant: options?.quoted?.key?.participant,
+		             quotedMessage: options?.quoted?.message,
+		             ...message?.contextInfo,
+		         }
 	          }
 	      }
 	   } else if(message.requestPayment.note) {
 	      notes = {
 	          extendedTextMessage: {
 		          text: message.requestPayment.note,
-		          contextInfo: message?.requestPayment?.contextInfo,
+		          contextInfo: {
+		             stanzaId: options?.quoted?.key?.id,
+		             participant: options?.quoted?.key?.participant,
+		             quotedMessage: options?.quoted?.message,
+		             ...message?.contextInfo,
+		          }
 		      }
 	      }
 	   } else {
@@ -703,6 +734,13 @@ export const generateWAMessageContent = async(
 	       body: interactiveMessage.body = { 
 	           text: message.text
 	       }
+	       
+	       header: interactiveMessage.header = {
+	          title: message.title,
+	          subtitle: message.subtitle,
+	          hasMediaAttachment: message?.media ?? false,
+	       }
+
 	   } else {
 	   
 	      if('caption' in message) {
@@ -725,17 +763,6 @@ export const generateWAMessageContent = async(
 		   footer: interactiveMessage.footer = {
 		      text: message.footer
 		   }
-	   }
-	   
-	   if('title' in message && !!message.title) {
-	       header: interactiveMessage.header = {
-	          title: message.title,
-	          subtitle: message.subtitle,
-	          hasMediaAttachment: message?.media ?? false,
-	       }
-	       		  
-		      Object.assign(interactiveMessage.header, m) 
-		      
 	   }		      
 	   
        if('contextInfo' in message && !!message.contextInfo) {
@@ -761,6 +788,13 @@ export const generateWAMessageContent = async(
 	       body: interactiveMessage.body = { 
 	           text: message.text
 	       }
+	       
+	       header: interactiveMessage.header = {
+	          title: message.title,
+	          subtitle: message.subtitle,
+	          hasMediaAttachment: message?.media ?? false,
+	       }
+	       
 	   } else {
 	   
 	      if('caption' in message) {
@@ -783,17 +817,6 @@ export const generateWAMessageContent = async(
 		   footer: interactiveMessage.footer = {
 		      text: message.footer
 		   }
-	   }
-	   
-	   if('title' in message && !!message.title) {
-	       header: interactiveMessage.header = {
-	          title: message.title,
-	          subtitle: message.subtitle,
-	          hasMediaAttachment: message?.media ?? false,
-	       }
-	       		  
-		      Object.assign(interactiveMessage.header, m)
-		      
 	   }	   
 	   
        if('contextInfo' in message && !!message.contextInfo) {
