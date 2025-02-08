@@ -140,10 +140,8 @@ export type PollMessageOptions = {
 
 export type PollResultMessage = {
     name: string
-    votes: (string | string[])[]
+    votes: (string | number)[][]
     messageSecret?: Uint8Array
-    /** add contextInfo to the message */
-    contextInfo?: proto.IContextInfo
 }
 
 type SharePhoneNumber = {
