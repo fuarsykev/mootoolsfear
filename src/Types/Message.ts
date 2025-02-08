@@ -86,7 +86,7 @@ type Templatable = {
 }
 
 type Interactiveable = {
-    /** add buttons to the message  */
+    /** add buttons to the message (conflicts with normal buttons)*/
     interactiveButtons?: proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton[]
     title?: string;
     subtitle?: string;
@@ -233,6 +233,8 @@ export type RequestPaymentInfo = {
     note?: string;
     sticker?: WAMediaUpload;
     background: string;
+    /** add contextInfo to the message */
+    contextInfo?: proto.IContextInfo;
 }
 
 
