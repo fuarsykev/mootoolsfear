@@ -299,7 +299,7 @@ export type AnyRegularMessageContent = (
     | { react: proto.Message.IReactionMessage }
     | {
         buttonReply: ButtonReplyInfo
-        type: 'template' | 'plain'
+        type: 'template' | 'plain' | 'interactive'
     }
     | {
      groupInvite: GroupInviteInfo
