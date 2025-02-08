@@ -549,7 +549,7 @@ export const generateWAMessageContent = async(
    } else if('pollResult' in message) {
    
         if(!Array.isArray(message.pollResult.votes)) {
-			throw new Boom('Invalid poll votes', { statusCode: 400 })
+			throw new Boom('Invalid poll votes result', { statusCode: 400 })
 		}
 		
 		m.messageContextInfo = {
@@ -559,9 +559,9 @@ export const generateWAMessageContent = async(
 		
 		const pollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes.map(res => ({
-		       optionName: res[0],
-		       optionVoteCount: res[1]
+		    pollVotes: message.pollResult.votes.map(option: string[] => ({
+		       optionName: option[0],
+		       optionVoteCount: option[1]
 		    })
 		  )
 		}
