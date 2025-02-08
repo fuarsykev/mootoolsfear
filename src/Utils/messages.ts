@@ -447,7 +447,7 @@ export const generateWAMessageContent = async(
            title: message.call.title
         }
       }
-   } else if ('paymentInvite' in message) {
+   } else if('paymentInvite' in message) {
      	m.paymentInviteMessage = {
    	       serviceType: message.paymentInvite.type, 
            expiryTimestamp: message.paymentInvite.expiry
@@ -559,7 +559,7 @@ export const generateWAMessageContent = async(
 		
 		const pollResultSnapshotMessage = {
 		    name: message.pollResult.name,
-		    pollVotes: message.pollResult.votes.map(option => ({
+		    pollVotes: message.pollResult.votes.map((option) => ({
 		       optionName: option[0],
 		       optionVoteCount: option[1]
 		    })
