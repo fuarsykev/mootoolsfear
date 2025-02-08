@@ -190,6 +190,8 @@ export type ButtonReplyInfo = {
     displayText: string
     id: string
     index: number
+    text: string
+    nativeFlow: proto.Message.InteractiveResponseMessage.NativeFlowResponseMessage
 }
 
 export type GroupInviteInfo = {
@@ -231,8 +233,6 @@ export type RequestPaymentInfo = {
     note?: string;
     sticker?: WAMediaUpload;
     background: string;
-    /** add contextInfo to the message */
-    contextInfo?: proto.IContextInfo
 }
 
 
@@ -423,6 +423,9 @@ export type MediaGenerationOptions = {
     mediaUploadTimeoutMs?: number
 
     options?: AxiosRequestConfig
+
+    /** the message you want to quote */
+	quoted?: WAMessage
 
     backgroundColor?: string
 
