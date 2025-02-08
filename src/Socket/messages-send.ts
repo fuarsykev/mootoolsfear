@@ -818,7 +818,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		},
 		sendAlbumMessage: async(
 		    jid: string, 
-		    caption: string,
 		    medias: Media[], 
 		    options: MiscMessageGenerationOptions = { }
 		) => {
@@ -851,8 +850,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                      msg = await generateWAMessage(
                          jid,
                          { 
-                             image: media.image, 
-                             ...(i === "0" ? { caption } : {}) 
+                             image: media.image,
+                             ...media
                          },
                          { 
                              userJid,
@@ -868,7 +867,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                          jid,
                          { 
                              video: media.video, 
-                              ...(i === "0" ? { caption } : {}) 
+                             ...media
                          },
                          { 
                              userJid,
