@@ -101,6 +101,15 @@ type Shopable = {
     media?: boolean;
 }
 
+type Collectionable = {
+    bizJid?: string;
+    id?: string;
+    version?: number;
+    title?: string;
+    subtitle?: string;
+    media?: boolean;
+}
+
 type Cardsable = {
     cards?: string[];
     title?: string;
