@@ -49,6 +49,11 @@ export interface WAUrlInfo {
     originalThumbnailUrl?: string
 }
 
+export interface Media {
+   image?: WAMediaUpload;
+   video?: WAMediaUpload
+}
+
 // types to generate WA messages
 type Mentionable = {
     /** list of jids that are mentioned in the accompanying text */
@@ -165,7 +170,7 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
+    } & Mentionable & Contextable & Media & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
     | ({
         video: WAMediaUpload
         caption?: string
@@ -173,7 +178,7 @@ export type AnyMediaMessageContent = (
         jpegThumbnail?: string
         /** if set to true, will send as a `video note` */
         ptv?: boolean
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
+    } & Mentionable & Contextable & Media & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
     | {
         audio: WAMediaUpload
         /** if set to true, will send as a `voice note` */
@@ -370,11 +375,6 @@ export type AnyMessageContent = AnyRegularMessageContent | {
 }
 
 export type GroupMetadataParticipants = Pick<GroupMetadata, 'participants'>
-
-export interface Media {
-   image?: WAMediaUpload;
-   video?: WAMediaUpload
-}
 
 type MinimalRelayOptions = {
     /** override the message ID with a custom provided string */
