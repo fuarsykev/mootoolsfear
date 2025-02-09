@@ -170,7 +170,7 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Contextable & Media & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
     | ({
         video: WAMediaUpload
         caption?: string
@@ -178,7 +178,7 @@ export type AnyMediaMessageContent = (
         jpegThumbnail?: string
         /** if set to true, will send as a `video note` */
         ptv?: boolean
-    } & Mentionable & Contextable & Media & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
     | {
         audio: WAMediaUpload
         /** if set to true, will send as a `voice note` */
@@ -413,6 +413,8 @@ export type MiscMessageGenerationOptions = MinimalRelayOptions & {
     font?: number
     /** if it is broadcast */
     broadcast?: boolean
+    /** delay of message time */
+    delay?: number
 }
 export type MessageGenerationOptionsFromContent = MiscMessageGenerationOptions & {
 	userJid: string
