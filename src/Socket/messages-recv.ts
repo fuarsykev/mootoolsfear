@@ -72,6 +72,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		sendReceipt,
 		uploadPreKeys,
 		getUSyncDevices,
+		sendPeerDataOperationMessage,
 		createParticipantNodes
 	} = sock
 
