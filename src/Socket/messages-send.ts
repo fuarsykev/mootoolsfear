@@ -873,6 +873,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
             for (const i in medias) {
                const media: AnyMessageContent = medias[i]
+               Object.assign(media, proto.IMessage)
                let mediaHandle;
                let msg = await generateWAMessage(
                          jid,
