@@ -541,7 +541,7 @@ export const generateWAMessageContent = async(
 			messageSecret: message.poll.messageSecret || randomBytes(32),
 		}
 
-		const pollCreationMessage = {
+		const pollCreationMessage: proto.Message.IPollCreationMessage = {
 			name: message.poll.name,
 			selectableOptionsCount: message.poll.selectableCount,
 			options: message.poll.values.map(optionName => ({ optionName })),
