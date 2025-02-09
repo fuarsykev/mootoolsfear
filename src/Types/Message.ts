@@ -102,9 +102,7 @@ type Shopable = {
 }
 
 type Collectionable = {
-    bizJid?: string;
-    id?: string;
-    version?: number;
+    collection?: { bizJid?: string, id?: string, version?: number };
     title?: string;
     subtitle?: string;
     media?: boolean;
