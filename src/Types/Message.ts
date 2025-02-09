@@ -143,8 +143,6 @@ export type PollMessageOptions = {
     /** 32 byte message secret to encrypt poll selections */
     messageSecret?: Uint8Array
     toAnnouncementGroup?: boolean
-    /** list of jids that are mentioned in the accompanying text */
-    mentions?: string[]
 }
 
 export type PollResultMessage = {
