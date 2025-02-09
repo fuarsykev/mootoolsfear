@@ -16,6 +16,7 @@ import {
 	derivePairingCodeKey,
 	encodeBigEndian,
 	encodeSignedDeviceIdentity,
+	generateMessageIDV2,
 	getCallStatusFromNode,
 	getHistoryMsg,
 	getNextPreKeys,
@@ -39,6 +40,7 @@ import {
 	isJidGroup, isJidStatusBroadcast,
 	isJidUser,
 	jidDecode,
+	jidEncode,
 	jidNormalizedUser,
 	S_WHATSAPP_NET
 } from '../WABinary'
@@ -69,7 +71,8 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 		relayMessage,
 		sendReceipt,
 		uploadPreKeys,
-		sendPeerDataOperationMessage,
+		getUSyncDevices,
+		createParticipantNodes
 	} = sock
 
 	/** this mutex ensures that each retryRequest will wait for the previous one to finish */
