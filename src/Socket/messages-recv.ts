@@ -907,7 +907,7 @@ export const makeMessagesRecvSocket = (config: SocketConfig) => {
 	const fetchMessageHistory = async(
 		count: number,
 		oldestMsgKey: WAMessageKey,
-		oldestMsgTimestamp: number | Long
+		oldestMsgTimestamp: number
 	): Promise<string> => {
 		if(!authState.creds.me?.id) {
 			throw new Boom('Not authenticated')
