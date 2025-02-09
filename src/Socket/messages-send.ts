@@ -855,6 +855,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                if (!media.image && !media.video) throw new TypeError(`medias[i] must have image or video property`)
             }
             if (medias.length < 2) throw new RangeError("Minimum 2 media")
+             
+            const time = options.delay || 500
+            delete options.delay
 
             const album = await generateWAMessageFromContent(
                   jid,
@@ -872,12 +875,17 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             { messageId: album.key.id! })
 
             for (const i in medias) {
-               const media: AnyMessageContent = medias[i]
-               Object.assign(media, proto.IMessage)
+               const media = medias[i]
                let mediaHandle;
-               let msg = await generateWAMessage(
+               let msg;
+                if(media.image) {
+                     msg = await generateWAMessage(
                          jid,
-                         media,
+                         { 
+                            image: media.image,
+                             ...media,
+                             ...options
+                         },
                          { 
                              userJid,
                              upload: async (readStream, opts) => {
@@ -888,8 +896,27 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                              ...options, 
                          }
                      )
+                } else if(media.video) {
+                     msg = await generateWAMessage(
+                         jid,
+                         { 
+                            video: media.video,
+                             ...media,
+                             ...options
+                         },
+                         { 
+                             userJid,
+                             upload: async (readStream, opts) => {
+                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) });
+                                mediaHandle = up.handle;
+                                return up;
+                             },
+                             ...options, 
+                         }
+                     )
+                }
 
-                msg?.message?.messageContextInfo = {
+                msg.message.messageContextInfo = {
                    messageAssociation: {
                       associationType: 1,
                       parentMessageKey: album.key!
@@ -899,7 +926,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                 await relayMessage(jid, msg.message!,
                 { messageId: msg.key.id! })
                 
-                await delay(500)
+                await delay(time)
             }
            return album
         },
