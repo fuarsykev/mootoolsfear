@@ -842,9 +842,9 @@ export const generateWAMessageContent = async(
    if('collection' in message && !!message.shop) {
 	    const interactiveMessage: proto.Message.IInteractiveMessage = {
 	      collectionMessage: WAProto.Message.InteractiveMessage.CollectionMessage.fromObject({ 
-	         bizJid: message.collection.bizJid,
-	         id: message.collection.id,
-	         messageVersion: message.collection.version
+	         bizJid: message?.collection?.bizJid,
+	         id: message?.collection?.id,
+	         messageVersion: message?.collection?.version
 	      })
 	   }
 	   
