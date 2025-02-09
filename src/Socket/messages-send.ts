@@ -873,41 +873,20 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
             for (const i in medias) {
                const media = medias[i]
-               let msg
                let mediaHandle;
-                if (media.image) {
-                     msg = await generateWAMessage(
+               let msg = await generateWAMessage(
                          jid,
-                         { 
-                             image: media.image,
-                             ...media
-                         },
+                         media,
                          { 
                              userJid,
                              upload: async (readStream, opts) => {
                                  const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) });
                                 mediaHandle = up.handle;
                                 return up;
-                             }, 
+                             },
+                             ...options, 
                          }
                      )
-                } else if (media.video) {
-                     msg = await generateWAMessage(
-                         jid,
-                         { 
-                             video: media.video, 
-                             ...media
-                         },
-                         { 
-                             userJid,
-                             upload: async (readStream, opts) => {
-                                 const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) });
-                                mediaHandle = up.handle;
-                                return up;
-                             }, 
-                         }
-                     )
-                }
 
                 msg.message.messageContextInfo = {
                    messageAssociation: {
