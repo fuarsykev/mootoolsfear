@@ -872,7 +872,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             { messageId: album.key.id! })
 
             for (const i in medias) {
-               const media = medias[i]
+               const media: AnyMessageContent = medias[i]
                let mediaHandle;
                let msg = await generateWAMessage(
                          jid,
