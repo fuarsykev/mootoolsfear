@@ -423,7 +423,7 @@ export const generateWAMessageContent = async(
 			if(pfpUrl) {
 				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
 				if(resp.status === 200) {
-					m.groupInviteMessage.jpegThumbnail = resp.data
+					m.groupInviteMessage.jpegThumbnail = resp.data ?? null
 				}
 			}
 		}
@@ -559,6 +559,15 @@ export const generateWAMessageContent = async(
 				m.pollCreationMessage = pollCreationMessage
 			}
 		}
+		
+        if('contextInfo' in message && !!message.contextInfo) {
+        	pollCreationMessage.contextInfo = message.contextInfo
+        }
+        
+        if('mentions' in message && !!message.mentions) {
+        	pollCreationMessage.contextInfo = { mentionedJid: message.mentions }
+        }
+        
    } else if('pollResult' in message) {
    
         if(!Array.isArray(message.pollResult.votes)) {
@@ -829,6 +838,61 @@ export const generateWAMessageContent = async(
        
 	   m = { interactiveMessage }
    }
+   
+   if('collection' in message && !!message.shop) {
+	    const interactiveMessage: proto.Message.IInteractiveMessage = {
+	      collectionMessage: WAProto.Message.InteractiveMessage.CollectionMessage.fromObject({ 
+	         bizJid: message.collection.bizJid,
+	         id: message.collection.id,
+	         messageVersion: message.collection.version
+	      })
+	   }
+	   
+	   if('text' in message) {
+	       body: interactiveMessage.body = { 
+	           text: message.text
+	       }
+	       
+	       header: interactiveMessage.header = {
+	          title: message.title,
+	          subtitle: message.subtitle,
+	          hasMediaAttachment: message?.media ?? false,
+	       }
+	       
+	   } else {
+	   
+	      if('caption' in message) {
+	          body: interactiveMessage.body = {
+	              text: message.caption
+	          }
+	          
+	          header: interactiveMessage.header = {
+	              title: message.title,
+	              subtitle: message.subtitle,
+	              hasMediaAttachment: message?.media ?? false,
+	          }
+	       		  
+		      Object.assign(interactiveMessage.header, m)
+		      
+	      }
+	   }
+	   
+	   if('footer' in message && !!message.footer) {
+		   footer: interactiveMessage.footer = {
+		      text: message.footer
+		   }
+	   }	   
+	   
+       if('contextInfo' in message && !!message.contextInfo) {
+        	interactiveMessage.contextInfo = message.contextInfo
+       }
+        
+       if('mentions' in message && !!message.mentions) {
+        	interactiveMessage.contextInfo = { mentionedJid: message.mentions }
+       }
+       
+	   m = { interactiveMessage }
+   }
 
    if('sections' in message && !!message.sections) {
 	    const listMessage: proto.Message.IListMessage = {
@@ -918,7 +982,7 @@ export const generateWAMessageFromContent = (
 			delete quotedContent.contextInfo
 		}
 		
-		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage?.contextInfo : innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage ? innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage?.contextInfo : innerMessage[key].contextInfo) || { }
+		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage?.contextInfo || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage?.contextInfo) : innerMessage[key].contextInfo) || { }
 		contextInfo.participant = jidNormalizedUser(participant!)
 		contextInfo.stanzaId = quoted.key.id
 		contextInfo.quotedMessage = quotedMsg
