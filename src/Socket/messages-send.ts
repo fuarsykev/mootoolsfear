@@ -888,7 +888,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                          }
                      )
 
-                msg.message.messageContextInfo = {
+                msg?.message?.messageContextInfo = {
                    messageAssociation: {
                       associationType: 1,
                       parentMessageKey: album.key!
