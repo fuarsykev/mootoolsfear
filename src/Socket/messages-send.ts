@@ -40,6 +40,12 @@ export const makeMessagesSocket = (config: SocketConfig) => {
   
 			msg.deviceSentMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
 		}
+		
+		if (msg?.viewOnceMessage?.message?.listMessage) {
+			msg = JSON.parse(JSON.stringify(msg))
+  
+			msg.viewOnceMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
+		}
   
 		if (msg?.listMessage) {
 			msg = JSON.parse(JSON.stringify(msg))
@@ -384,6 +390,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		const isGroup = server === 'g.us'
 		const isStatus = jid === statusJid
 		const isLid = server === 'lid'
+        const isPrivate = server === 's.whatsapp.net'
 		const isNewsletter = server === 'newsletter'
 
 		msgId = msgId || generateMessageID()
@@ -612,8 +619,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			  
 				if(additionalNodes && additionalNodes.length > 0) {
                       (stanza.content as BinaryNode[]).push(...additionalNodes);
-                } else {
-                    if((isJidGroup(jid) || isJidUser(jid)) && (message?.viewOnceMessage?.message?.interactiveMessage || message?.viewOnceMessageV2?.message?.interactiveMessage || message?.viewOnceMessageV2Extension?.message?.interactiveMessage || message?.interactiveMessage) || (message?.viewOnceMessage?.message?.buttonsMessage || message?.viewOnceMessageV2?.message?.buttonsMessage || message?.viewOnceMessageV2Extension?.message?.buttonsMessage || message?.buttonsMessage)) {
+                }
+                      
+                if(!isNewsletter && (message?.viewOnceMessage?.message?.interactiveMessage || message?.viewOnceMessageV2?.message?.interactiveMessage || message?.viewOnceMessageV2Extension?.message?.interactiveMessage || message?.interactiveMessage) || (message?.viewOnceMessage?.message?.buttonsMessage || message?.viewOnceMessageV2?.message?.buttonsMessage || message?.viewOnceMessageV2Extension?.message?.buttonsMessage || message?.buttonsMessage)) {
                        (stanza.content as BinaryNode[]).push({
 						  tag: 'biz',
 						  attrs: {},
@@ -630,9 +638,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			   				      }
 							  }]
     					  }]
-				       });
-				    }
-                }
+				       }
+				    );
+				}                
 
 				const buttonType = getButtonType(message)
 				if(buttonType) {
@@ -935,7 +943,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			content: AnyMessageContent,
 			options: MiscMessageGenerationOptions = { }
 		) => {
-			const userJid = authState.creds.me!.id
+			const userJid = authState.creds.me!.id            
+
 			if(
 				typeof content === 'object' &&
 				'disappearingMessagesInChat' in content &&
