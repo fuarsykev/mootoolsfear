@@ -50,8 +50,19 @@ export interface WAUrlInfo {
 }
 
 export interface Media {
-   image?: WAMediaUpload;
+   image?: WAMediaUpload
    video?: WAMediaUpload
+}
+
+export interface Carousel {   
+   image?: WAMediaUpload
+   video?: WAMediaUpload
+   product?: WASendableProduct
+   title?: string
+   subtitle?: string
+   caption?: string
+   footer?: string
+   buttons?: proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton[]
 }
 
 // types to generate WA messages
@@ -114,7 +125,7 @@ type Collectionable = {
 }
 
 type Cardsable = {
-    cards?: string[];
+    cards?: Carousel[];
     title?: string;
     subtitle?: string;
 }
@@ -212,6 +223,7 @@ export type GroupInviteInfo = {
     text: string
     jid: string
     subject: string
+    thumbnail: Buffer
 }
 
 export type PinInChatInfo = {
