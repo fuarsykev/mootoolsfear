@@ -1096,7 +1096,7 @@ export const generateWAMessageFromContent = (
 	) {
 	    if(key ==='requestPaymentMessage') {
 	        (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo = {
-	           ...((innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo || {})
+	           ...((innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo || {}),
 	           expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
 	        }
 	    } else {
