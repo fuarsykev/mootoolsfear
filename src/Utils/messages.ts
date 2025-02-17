@@ -899,12 +899,12 @@ export const generateWAMessageContent = async(
               const [image, video, product, title, subtitle, caption, footer, buttons] = slide           
               let header
               if(image) {
-                  const { imageMessage } = await prepareWAMessageMedia({ image })
+                  const { imageMessage } = await prepareWAMessageMedia({ image }, slide)
                  header = {
                     ...imageMessage,
                  }
               } else if(video) {
-                  const { videoMessage } = await prepareWAMessageMedia({ video })
+                  const { videoMessage } = await prepareWAMessageMedia({ video }, slide)
                  header = {
                     ...videoMessage,
                  }
@@ -941,7 +941,9 @@ export const generateWAMessageContent = async(
            }
        ))
        const interactiveMessage: proto.Message.IInteractiveMessage = {
-            carouselMessage: slides
+            carouselMessage: WAProto.Message.InteractiveMessage.CarouselMessage.fromObject({
+                 cards: slides
+            })
        }
 	   
 	   if('text' in message) {
@@ -1087,7 +1089,8 @@ export const generateWAMessageFromContent = (
 		!isJidNewsLetter(jid)
 	) {
 	    if(key ==='requestPaymentMessage') {
-	        (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo = {
+	        const type = innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage
+	        type?.contextInfo = {
 	           ...((innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo || {}),
 	           expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
 	        }
