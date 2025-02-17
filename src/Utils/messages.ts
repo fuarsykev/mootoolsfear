@@ -895,11 +895,8 @@ export const generateWAMessageContent = async(
    
    if('cards' in message && !!message.cards) {
        const slides = await Promise.all(
-           message.cards.map(async slide => ({
-              const [image, video, product, title, subtitle, caption, footer, buttons] = slide
-              if(!image || !video || !product)) {
-                   throw new Boom('Invalid media type', { statusCode: 400 })
-              }
+           message.cards.map(async slide => {
+              const [image, video, product, title, subtitle, caption, footer, buttons] = slide;
               let header
               if(image) {
                   const { imageMessage } = await prepareWAMessageMedia(
@@ -916,6 +913,7 @@ export const generateWAMessageContent = async(
 		         )
                  header = {
                     ...videoMessage,
+                 }
               } else if(product) {
                  const { imageMessage } = await prepareWAMessageMedia(
 			         { image: product?.productImage, ...slide },
@@ -948,8 +946,8 @@ export const generateWAMessageContent = async(
 	                  buttons
 	              }
               }            
-           })
-       )))
+           }
+       ))
        const interactiveMessage: proto.Message.IInteractiveMessage = {
             carouselMessage: slides
        }
