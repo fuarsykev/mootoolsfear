@@ -416,6 +416,7 @@ export const generateWAMessageContent = async(
         m.groupInviteMessage.caption = message.groupInvite.text;
         m.groupInviteMessage.groupJid = message.groupInvite.jid;
         m.groupInviteMessage.groupName = message.groupInvite.subject;
+        m.groupInviteMessage.jpegThumbnail = message.groupInvite.thumbnail
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
@@ -423,9 +424,11 @@ export const generateWAMessageContent = async(
 			if(pfpUrl) {
 				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
 				if(resp.status === 200) {
-					m.groupInviteMessage.jpegThumbnail = resp.data ?? null
-				}
-			}
+					m.groupInviteMessage.jpegThumbnail = resp.data
+				} 
+			} else {
+			    m.groupInviteMessage.jpegThumbnail = null
+	        }
 		}
    } else if('pin' in message) {
         m.pinInChatMessage = {};
@@ -889,6 +892,96 @@ export const generateWAMessageContent = async(
        
 	   m = { interactiveMessage }
    }
+   
+   if('cards' in message && !!message.cards) {
+       const slides = await Promise.all(message.cards.map(async (slide => ({
+              const [image, video, product, title, subtitle, caption, footer, buttons] = slide
+              if(!(image || video || product)) {
+                   throw new Boom('Invalid media type', { statusCode: 400 })
+              }
+              let header
+              if(image) {
+                  const { imageMessage } = await prepareWAMessageMedia(
+			         { image, ...slide },
+			         slide
+		         )
+                 header = {
+                    ...imageMessage,
+                 }
+              } else if(video) {
+                  const { videoMessage } = await prepareWAMessageMedia(
+			         { video, ...slide },
+			         slide
+		         )
+                 header = {
+                    ...videoMessage,
+              } else if(product) {
+                 const { imageMessage } = await prepareWAMessageMedia(
+			         { image: product?.productImage, ...slide },
+			         slide
+		         )
+		         header = {
+		             productMesage: WAProto.Message.ProductMessage.fromObject({
+			             ...slide,
+			             product: {
+				            ...product,
+				            productImage: imageMessage,
+			             }
+		             })
+		         }
+              }  
+              return {
+                  header: {
+                      title,
+                      subtitle,
+                      hasMediaAttachment: true,
+                      ...header
+                  },
+                  body: {
+	                  text: caption
+	              },
+	              footer: {
+	                  text: footer
+	              },
+	              nativeFlowMessage: {
+	                  buttons
+	              }
+              }            
+           })
+       )))
+       const interactiveMessage: proto.Message.IInteractiveMessage = {
+            carouselMessage: slides
+       }
+	   
+	   if('text' in message) {
+	       body: interactiveMessage.body = { 
+	           text: message.text
+	       }
+	       
+	       header: interactiveMessage.header = {
+	          title: message.title,
+	          subtitle: message.subtitle,
+	          hasMediaAttachment: message?.media ?? false,
+	       }
+	       
+	   }
+	   
+	   if('footer' in message && !!message.footer) {
+		   footer: interactiveMessage.footer = {
+		      text: message.footer
+		   }
+	   }	   
+	   
+       if('contextInfo' in message && !!message.contextInfo) {
+        	interactiveMessage.contextInfo = message.contextInfo
+       }
+        
+       if('mentions' in message && !!message.mentions) {
+        	interactiveMessage.contextInfo = { mentionedJid: message.mentions }
+       }
+       
+       m = { interactiveMessage }
+   }
 
    if('sections' in message && !!message.sections) {
 	    const listMessage: proto.Message.IListMessage = {
@@ -978,7 +1071,7 @@ export const generateWAMessageFromContent = (
 			delete quotedContent.contextInfo
 		}
 		
-		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage?.contextInfo || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage?.contextInfo) : innerMessage[key].contextInfo) || { }
+		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo : innerMessage[key].contextInfo) || { }
 		contextInfo.participant = jidNormalizedUser(participant!)
 		contextInfo.stanzaId = quoted.key.id
 		contextInfo.quotedMessage = quotedMsg
@@ -1002,10 +1095,17 @@ export const generateWAMessageFromContent = (
 		// newsletter not accept disappearing messages
 		!isJidNewsLetter(jid)
 	) {
-		innerMessage[key].contextInfo = {
-			...(innerMessage[key].contextInfo || {}),
-			expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
+	    if(key ==='requestPaymentMessage') {
+	        (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo = {
+	           ...((innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo || {})
+	           expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
+	        }
+	    } else {
+		    innerMessage[key].contextInfo = {
+			  ...(innerMessage[key].contextInfo || {}),
+			  expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
 			//ephemeralSettingTimestamp: options.ephemeralOptions.eph_setting_ts?.toString()
+		    }
 		}
 	}
 
