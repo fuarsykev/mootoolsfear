@@ -894,9 +894,10 @@ export const generateWAMessageContent = async(
    }
    
    if('cards' in message && !!message.cards) {
-       const slides = await Promise.all(message.cards.map(async (slide => ({
+       const slides = await Promise.all(
+           message.cards.map(async slide => ({
               const [image, video, product, title, subtitle, caption, footer, buttons] = slide
-              if(!(image || video || product)) {
+              if(!image || !video || !product)) {
                    throw new Boom('Invalid media type', { statusCode: 400 })
               }
               let header
