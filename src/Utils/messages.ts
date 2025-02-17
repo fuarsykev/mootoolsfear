@@ -895,29 +895,30 @@ export const generateWAMessageContent = async(
    
    if('cards' in message && !!message.cards) {
        const slides = await Promise.all(
-           message.cards.map(async slide => {
-              const [image, video, product, title, subtitle, caption, footer, buttons] = slide;
+           message.cards.map(async slide => {              
+              const [image, video, product, title, subtitle, caption, footer, buttons] = slide
+              const [options]: MessageContentGenerationOptions = slide              
               let header
               if(image) {
                   const { imageMessage } = await prepareWAMessageMedia(
-			         { image, ...slide },
-			         slide
+			         { image, ...options },
+			         options
 		         )
                  header = {
                     ...imageMessage,
                  }
               } else if(video) {
                   const { videoMessage } = await prepareWAMessageMedia(
-			         { video, ...slide },
-			         slide
+			         { video, ...options },
+			         options
 		         )
                  header = {
                     ...videoMessage,
                  }
               } else if(product) {
                  const { imageMessage } = await prepareWAMessageMedia(
-			         { image: product?.productImage, ...slide },
-			         slide
+			         { image: product?.productImage, ...options },
+			         options
 		         )
 		         header = {
 		             productMesage: WAProto.Message.ProductMessage.fromObject({
@@ -928,24 +929,25 @@ export const generateWAMessageContent = async(
 			             }
 		             })
 		         }
-              }  
-              return {
-                  header: {
+              } 
+              const msg: proto.Message.IInteractiveMessage = {
+                  header: WAProto.Message.InteractiveMessage.Header.fromObject({
                       title,
                       subtitle,
                       hasMediaAttachment: true,
                       ...header
-                  },
-                  body: {
-	                  text: caption
-	              },
-	              footer: {
-	                  text: footer
-	              },
-	              nativeFlowMessage: {
-	                  buttons
-	              }
-              }            
+                  }),
+                  body: WAProto.Message.InteractiveMessage.Body.fromObject({
+                      text: caption
+                  }),
+                  footer: WAProto.Message.InteractiveMessage.Footer.fromObject({
+                      text: footer
+                  }),
+	              nativeFlowMessage: WAProto.Message.InteractiveMessage.NativeFlowMessage.fromObject({ 
+	                  buttons,
+	              })
+	          } 
+              return msg            
            }
        ))
        const interactiveMessage: proto.Message.IInteractiveMessage = {
