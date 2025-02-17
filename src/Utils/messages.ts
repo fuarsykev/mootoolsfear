@@ -1088,19 +1088,11 @@ export const generateWAMessageFromContent = (
 		// newsletter not accept disappearing messages
 		!isJidNewsLetter(jid)
 	) {
-	    if(key ==='requestPaymentMessage') {
-	        const type = innerMessage?.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage?.requestPaymentMessage?.noteMessage?.stickerMessage
-	        [type]?.contextInfo = {
-	           ...((innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)?.contextInfo || {}),
-	           expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
-	        }
-	    } else {
-		    innerMessage[key].contextInfo = {
-			  ...(innerMessage[key].contextInfo || {}),
-			  expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
+		innerMessage[key].contextInfo = {
+			...(innerMessage[key].contextInfo || {}),
+			expiration: options.ephemeralExpiration || WA_DEFAULT_EPHEMERAL,
 			//ephemeralSettingTimestamp: options.ephemeralOptions.eph_setting_ts?.toString()
-		    }
-		}
+		}		
 	}
 
 	message = WAProto.Message.fromObject(message)
