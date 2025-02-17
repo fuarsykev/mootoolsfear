@@ -899,23 +899,23 @@ export const generateWAMessageContent = async(
               const { image, video, product, title, subtitle, caption, footer, buttons } = slide           
               let header
               if(image) {
-                  const { imageMessage } = await prepareWAMessageMedia({ image }, slide)
+                  const { imageMessage } = await prepareWAMessageMedia({ image })
                  header = {
                     ...imageMessage,
                  }
               } else if(video) {
-                  const { videoMessage } = await prepareWAMessageMedia({ video }, slide)
+                  const { videoMessage } = await prepareWAMessageMedia({ video })
                  header = {
                     ...videoMessage,
                  }
               } else if(product) {
-                 const { imageMessage } = await prepareWAMessageMedia({ image: product.productImage })
+                 const image = await prepareWAMessageMedia({ image: product.productImage })
 		         header = {
 		             productMesage: WAProto.Message.ProductMessage.fromObject({
 			             ...slide,
 			             product: {
 				            ...product,
-				            productImage: imageMessage,
+				            productImage: image.imageMessage,
 			             }
 		             })
 		         }
