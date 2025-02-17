@@ -59,7 +59,6 @@ export interface Carousel {
    video?: WAMediaUpload
    product?: WASendableProduct
    title?: string
-   subtitle?: string
    caption?: string
    footer?: string
    buttons?: proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton[]
