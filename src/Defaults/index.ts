@@ -82,6 +82,7 @@ export const DEFAULT_CONNECTION_CONFIG: SocketConfig = {
 	},
 	countryCode: 'US',
 	getMessage: async() => undefined,
+	cachedGroupMetadata: async() => undefined,
 	makeSignalRepository: makeLibSignalRepository
 }
 
