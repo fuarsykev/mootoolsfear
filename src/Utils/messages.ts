@@ -913,7 +913,7 @@ export const generateWAMessageContent = async(
 			                ...product,
 				            productImage: await imageMessage,
 			             },
-			             ...slide
+			             ...product
 		             })
 		         }
               } 
