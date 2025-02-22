@@ -420,9 +420,14 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-			const pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview')
+           let pfpUrl
+           try {
+			   pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview')
+		   } catch {
+		       pfpUrl = null
+		   }
 			if(pfpUrl) {
-				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+				resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
 				if(resp.status === 200) {
 					m.groupInviteMessage.jpegThumbnail = resp.data
 				} 
@@ -910,7 +915,7 @@ export const generateWAMessageContent = async(
                  )
               } else if(product) {
                  const { imageMessage } = await prepareWAMessageMedia(
-                     { image: await product.productImage, ...options }, 
+                     product, 
                      options
                  );
 		         header = {
