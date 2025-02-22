@@ -918,6 +918,7 @@ export const generateWAMessageContent = async(
                      { image: productImage, ...options }, 
                      options
                  );
+                 Object.assign(productImage, image)
 		         header = {
 		             productMesage: WAProto.Message.ProductMessage.fromObject({
 			             product: {
