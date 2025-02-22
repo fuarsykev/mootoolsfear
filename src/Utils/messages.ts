@@ -899,28 +899,33 @@ export const generateWAMessageContent = async(
               const { image, video, product, title, caption, footer, buttons } = slide           
               let header
               if(image) {
-                 header = await prepareWAMessageMedia({ image: image, ...options }, options)
-              } else if(video) {
-                 header = await prepareWAMessageMedia({ video: video, ...options }, options)
-              } else if(product) {
-                 const { imageMessage } = await prepareWAMessageMedia(
-                    { image: product.productImage }, 
+                 header = await prepareWAMessageMedia(
+                    { image: image, ...options }, 
                     options
-                 );
+                 )
+              } else if(video) {
+                 header = await prepareWAMessageMedia(
+                    { video: video, ...options }, 
+                    options
+                 )
+              } else if(product) {
 		         header = {
 		             productMesage: WAProto.Message.ProductMessage.fromObject({
 			             product: {
 			                ...product,
-				            productImage: await imageMessage,
+				            productImage: await prepareWAMessageMedia(
+                              { image: product.productImage, ...options }, 
+                               options
+                            ),
 			             },
-			             ...product
+			             ...slide
 		             })
 		         }
               } 
               const msg: proto.Message.IInteractiveMessage = {
                   header: WAProto.Message.InteractiveMessage.Header.fromObject({
                       title,
-                      hasMediaAttachment: true,
+                      hasMediaAttachment: false,
                       ...header
                   }),
                   body: WAProto.Message.InteractiveMessage.Body.fromObject({
