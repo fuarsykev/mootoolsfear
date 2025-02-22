@@ -910,8 +910,8 @@ export const generateWAMessageContent = async(
 		         header = {
 		             productMesage: WAProto.Message.ProductMessage.fromObject({
 			             product: {
+			                ...product,
 				            productImage: await imageMessage,
-				            ...product,
 			             },
 			             ...slide
 		             })
