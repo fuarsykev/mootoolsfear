@@ -427,7 +427,7 @@ export const generateWAMessageContent = async(
 		       pfpUrl = null
 		   }
 			if(pfpUrl) {
-				resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
 				if(resp.status === 200) {
 					m.groupInviteMessage.jpegThumbnail = resp.data
 				} 
@@ -915,7 +915,7 @@ export const generateWAMessageContent = async(
                  )
               } else if(product) {
                  const { imageMessage } = await prepareWAMessageMedia(
-                     product, 
+                     { ...product }, 
                      options
                  );
 		         header = {
