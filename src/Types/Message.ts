@@ -61,6 +61,7 @@ export interface Carousel {
    image?: WAMediaUpload
    video?: WAMediaUpload
    product?: WASendableProduct
+   productImage?: WAMediaUpload
    media?: boolean
    title?: string
    caption?: string
@@ -184,7 +185,7 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WASendableProduct & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
     | ({
         video: WAMediaUpload
         caption?: string
