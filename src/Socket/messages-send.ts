@@ -1014,20 +1014,58 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				} else if(isPinMsg) {
                     additionalAttributes.edit = '2';
                 } else if (isButtonsMsg) {
+                    (additionalNodes as BinaryNode[]).push(
+                       {
+                          tag: 'biz',
+						  attrs: {},
+					      content: [{
+							  tag: 'interactive',
+						  	  attrs: {
+				   				  type: 'native_flow',
+			      				  v: '1'
+							  },
+							  content: [{
+			   					  tag: 'native_flow',
+			   					  attrs: { 
+			   					     name: 'quick_reply',
+			   				      }
+							  }]
+    					  }]
+                       },
+                       ...options.additionalNodes
+                    )
                 } else if(isListMsg) {
                 } else if(isTemplateButtons) {
                 } else if(isInteractiveButtons) {
+                    (additionalNodes as BinaryNode[]).push(
+                       {
+                          tag: 'biz',
+						  attrs: {},
+					      content: [{
+							  tag: 'interactive',
+						  	  attrs: {
+				   				  type: 'native_flow',
+			      				  v: '1'
+							  },
+							  content: [{
+			   					  tag: 'native_flow',
+			   					  attrs: { 
+			   					     name: 'quick_reply',
+			   				      }
+							  }]
+    					  }]
+                       },
+                       ...options.additionalNodes
+                    )
                 } else if(isAiMsg) {
 				    (additionalNodes as BinaryNode[]).push({
                         attrs: {
                             biz_bot: '1'
                         },
-                        tag: "bot"
-                        }, { 
-                        attrs: {}, 
-                        tag: "biz" 
-                      }
-                   )
+                        tag: 'bot'
+                        },
+                        ...options.additionalNodes
+                    )
 				}
 
 				if (mediaHandle) {
