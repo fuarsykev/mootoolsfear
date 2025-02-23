@@ -1032,7 +1032,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							  }]
     					  }]
                        },
-                       ...options.additionalNodes
+                       ...(options.additionalNodes ?? { })
                     )
                 } else if(isListMsg) {
                 } else if(isTemplateButtons) {
@@ -1055,7 +1055,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							  }]
     					  }]
                        },
-                       ...options.additionalNodes
+                       ...(options.additionalNodes ?? { })
                     )
                 } else if(isAiMsg) {
 				    (additionalNodes as BinaryNode[]).push({
@@ -1064,7 +1064,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                         },
                         tag: 'bot'
                         },
-                        ...options.additionalNodes
+                       ...(options.additionalNodes ?? { })
                     )
 				}
 
