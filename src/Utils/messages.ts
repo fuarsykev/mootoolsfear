@@ -913,7 +913,7 @@ export const generateWAMessageContent = async(
                     { video: video, ...options }, 
                     options
                  )
-              } else if(product && productImage) {
+              } else if(product) {
                  const { imageMessage } = await prepareWAMessageMedia(
                      { image: product.productImage, ...options }, 
                      options
