@@ -1033,18 +1033,22 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			   				      }
 							  }]
     					  }]
-                       },
-                       ...(options.additionalNodes ?? null)
+                       }
                     )
+                    if(options.additionalNodes) {
+                        (additionalNodes as BinaryNode[]).push(...options.additionalNodes)
+                    }
                 } else if(isAiMsg) {
 				    (additionalNodes as BinaryNode[]).push({
                         attrs: {
                             biz_bot: '1'
                         },
                         tag: 'bot'
-                        },
-                       ...(options.additionalNodes ?? [])
+                        }
                     )
+                    if(options.additionalNodes) {
+                        (additionalNodes as BinaryNode[]).push(...options.additionalNodes)
+                    }
 				}
 
 				if (mediaHandle) {
