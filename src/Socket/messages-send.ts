@@ -1013,30 +1013,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					additionalAttributes.edit = isJidNewsLetter(jid) ? '3' : '1'
 				} else if(isPinMsg) {
                     additionalAttributes.edit = '2';
-                } else if (isButtonsMsg) {
-                    (additionalNodes as BinaryNode[]).push(
-                       {
-                          tag: 'biz',
-						  attrs: {},
-					      content: [{
-							  tag: 'interactive',
-						  	  attrs: {
-				   				  type: 'native_flow',
-			      				  v: '1'
-							  },
-							  content: [{
-			   					  tag: 'native_flow',
-			   					  attrs: { 
-			   					     name: 'quick_reply',
-			   				      }
-							  }]
-    					  }]
-                       },
-                       ...(options.additionalNodes ?? null)
-                    )
                 } else if(isListMsg) {
                 } else if(isTemplateButtons) {
-                } else if(isInteractiveButtons) {
+                } else if(isInteractiveButtons && isButtonsMsg) {
                     (additionalNodes as BinaryNode[]).push(
                        {
                           tag: 'biz',
@@ -1064,7 +1043,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                         },
                         tag: 'bot'
                         },
-                       ...options.additionalNodes
+                       ...(options.additionalNodes ?? [])
                     )
 				}
 
