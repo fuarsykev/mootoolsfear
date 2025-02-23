@@ -19,15 +19,15 @@ export type WATextMessage = proto.Message.IExtendedTextMessage
 export type WAContextInfo = proto.IContextInfo
 export type WALocationMessage = proto.Message.ILocationMessage
 export type WALiveLocationMessage = proto.Message.ILiveLocationMessage
-export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
-    productImage: WAMediaUpload
-}
 export type WAGenericMediaMessage = proto.Message.IVideoMessage | proto.Message.IImageMessage | proto.Message.IAudioMessage | proto.Message.IDocumentMessage | proto.Message.IStickerMessage
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export import WAMessageStubType = proto.WebMessageInfo.StubType
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export import WAMessageStatus = proto.WebMessageInfo.Status
 export type WAMediaUpload = Buffer | { url: URL | string } | { stream: Readable }
+export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
+    productImage: WAMediaUpload
+}
 /** Set of message types that are supported by the library */
 export type MessageType = keyof proto.Message
 
@@ -61,8 +61,6 @@ export interface Carousel {
    image?: WAMediaUpload
    video?: WAMediaUpload
    product?: WASendableProduct
-   productImage?: WAMediaUpload
-   media?: boolean
    title?: string
    caption?: string
    footer?: string
@@ -210,7 +208,13 @@ export type AnyMediaMessageContent = (
         mimetype: string
         fileName?: string
         caption?: string
-    } & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable))
+    } & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable)
+    | ({
+        product: WASendableProduct
+        businessOwnerJid?: string
+        body?: string
+        footer?: string
+    }  & Contextable & Interactiveable & Shopable & Collectionable & Cardsable))
     & { mimetype?: string } & Editable
 
 export type ButtonReplyInfo = {
