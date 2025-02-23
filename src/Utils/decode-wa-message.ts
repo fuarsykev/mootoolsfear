@@ -149,25 +149,21 @@ export const decryptMessageNode = (
 		author,
 		async decrypt() {
 			let decryptables = 0
-
-			async function processSenderKeyDistribution(msg: proto.IMessage) {
-				if(msg.senderKeyDistributionMessage) {
-					try {
-						await repository.processSenderKeyDistributionMessage({
-							authorJid: author,
-							item: msg.senderKeyDistributionMessage
-						})
-					} catch(err) {
-						logger.error({ key: fullMessage.key, err }, 'failed to process senderKeyDistribution')
-					}
-				}
-			}
-
 			if (isJidNewsLetter(fullMessage.key.remoteJid!)) {
 				const node = getBinaryNodeChild(stanza, 'plaintext')
 				const msg = proto.Message.decode(node?.content as Uint8Array)
 
-				await processSenderKeyDistribution(msg)
+				if(msg.senderKeyDistributionMessage) {
+							//eslint-disable-next-line max-depth
+						    try {
+								await repository.processSenderKeyDistributionMessage({
+									authorJid: author,
+									item: msg.senderKeyDistributionMessage
+								})
+							} catch(err) {
+								logger.error({ key: fullMessage.key, err }, 'failed to decrypt message')
+						    }
+			    }
 
 				fullMessage.message = msg
 				decryptables += 1
@@ -179,7 +175,7 @@ export const decryptMessageNode = (
 						fullMessage.verifiedBizName = details.verifiedName
 					}
 
-					if(tag !== 'enc') {
+					if(tag !== 'enc' && tag !== 'plaintext') {
 						continue
 					}
 
@@ -187,13 +183,12 @@ export const decryptMessageNode = (
 						continue
 					}
 
-
 					decryptables += 1
 
 					let msgBuffer: Uint8Array
 
 					try {
-						const e2eType = attrs.type
+						const e2eType = tag === 'plaintext' ? 'plaintext' : attrs.type
 						switch (e2eType) {
 						case 'skmsg':
 							msgBuffer = await repository.decryptGroupMessage({
@@ -211,13 +206,26 @@ export const decryptMessageNode = (
 								ciphertext: content
 							})
 							break
+						case 'plaintext':
+							msgBuffer = content
+							break
 						default:
 							throw new Error(`Unknown e2e type: ${e2eType}`)
 						}
 
-						let msg: proto.IMessage = proto.Message.decode(unpadRandomMax16(msgBuffer))
+						let msg: proto.IMessage = proto.Message.decode(e2eType !== 'plaintext' ? unpadRandomMax16(msgBuffer) : msgBuffer)
 						msg = msg.deviceSentMessage?.message || msg
-						await processSenderKeyDistribution(msg)
+						if(msg.senderKeyDistributionMessage) {
+							//eslint-disable-next-line max-depth
+						    try {
+								await repository.processSenderKeyDistributionMessage({
+									authorJid: author,
+									item: msg.senderKeyDistributionMessage
+								})
+							} catch(err) {
+								logger.error({ key: fullMessage.key, err }, 'failed to decrypt message')
+						        }
+						}
 
 						if(fullMessage.message) {
 							Object.assign(fullMessage.message, msg)
@@ -238,7 +246,7 @@ export const decryptMessageNode = (
 			// if nothing was found to decrypt
 			if(!decryptables) {
 				fullMessage.messageStubType = proto.WebMessageInfo.StubType.CIPHERTEXT
-				fullMessage.messageStubParameters = [NO_MESSAGE_FOUND_ERROR_TEXT, JSON.stringify(stanza, BufferJSON.replacer)]
+				fullMessage.messageStubParameters = [NO_MESSAGE_FOUND_ERROR_TEXT]
 			}
 		}
 	}
