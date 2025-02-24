@@ -617,9 +617,14 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                       (stanza.content as BinaryNode[]).push(...additionalNodes);
                 }
                 const inMsg = normalizeMessageContent(message) || null
-                const key: string = inMsg ? getContentType(inMsg) : null
-                const nativeMsg = key ? (key === 'interactiveMessage' || key === 'buttonsMessage') : null
-                if(!isNewsletter && nativeMsg) {
+                if(inMsg) {
+                   inMsg = inMsg
+                }
+                const key = inMsg ? getContentType(inMsg) : null
+                if(key) {
+                   key = key
+                }
+                if(!isNewsletter && (key === 'interactiveMessage' || key === 'buttonsMessage')) {
                     (stanza.content as BinaryNode[]).push(
                        {
 						  tag: 'biz',
@@ -819,7 +824,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							} else {
 								try {
 									const media = decryptMediaRetryData(result.media!, mediaKey, result.key.id!)
-									if(media.result !== proto.MediaRetryNotification.ResultType.SUCCESS) {
+									if(media && media.result !== proto.MediaRetryNotification.ResultType.SUCCESS) {
 										const resultStr = proto.MediaRetryNotification.ResultType[media.result]
 										throw new Boom(
 											`Media re-upload failed by device (${resultStr})`,
