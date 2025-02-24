@@ -208,14 +208,8 @@ export type AnyMediaMessageContent = (
         mimetype: string
         fileName?: string
         caption?: string
-    } & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable)
-    | ({
-        product: WASendableProduct
-        businessOwnerJid?: string
-        body?: string
-        footer?: string
-    }  & Contextable & Interactiveable & Shopable & Collectionable & Cardsable))
-    & { mimetype?: string } & Editable
+    } & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable))
+    & { mimetype?: string } & Editable & WASendableProduct
 
 export type ButtonReplyInfo = {
     displayText: string
