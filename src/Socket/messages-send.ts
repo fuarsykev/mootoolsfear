@@ -62,11 +62,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		}
 		
 		if (msg?.deviceSentMessage?.message?.templateMessage) {
-			msg = JSON.stringify(msg)
+			msg = JSON.parse(JSON.stringify(msg))
 		}
 
 		if (msg?.templateMessage) {
-		    msg = JSON.stringify(msg)
+		    msg = JSON.parse(JSON.stringify(msg))
 		}
 
 		return msg;
@@ -616,11 +616,12 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				if(additionalNodes && additionalNodes.length > 0) {
                       (stanza.content as BinaryNode[]).push(...additionalNodes);
                 }
-                const inMsg = normalizeMessageContent(message)
-                const key: string = getContentType(inMsg)
-                const nativeMsg = (key === 'interactiveMessage' || key === 'buttonsMessage') || null
+                const inMsg = normalizeMessageContent(message) || null
+                const key: string = inMsg ? getContentType(inMsg) : null
+                const nativeMsg = key ? (key === 'interactiveMessage' || key === 'buttonsMessage') : null
                 if(!isNewsletter && nativeMsg) {
-                       const nativeNodes = [{
+                    (stanza.content as BinaryNode[]).push(
+                       {
 						  tag: 'biz',
 						  attrs: {},
 					      content: [{
@@ -636,10 +637,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			   				      }
 							  }]
     					  }]
-				       }]
-				       const nodesMsg = additionalNodes ? additionalNodes.find(({ content }) => content ? content.find(({ tag }) => tag ? tag === 'interactive' : null) : null) : null
-                       const nodeMsg = ([nodesMsg] || nativeNodes)
-                       (stanza.content as BinaryNode[]).push(...nodeMsg);
+				       }
+				    );
 				}                
 
 				const buttonType = getButtonType(message)
