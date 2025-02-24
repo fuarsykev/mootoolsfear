@@ -25,9 +25,6 @@ export import WAMessageStubType = proto.WebMessageInfo.StubType
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 export import WAMessageStatus = proto.WebMessageInfo.Status
 export type WAMediaUpload = Buffer | { url: URL | string } | { stream: Readable }
-export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
-    productImage: WAMediaUpload
-}
 /** Set of message types that are supported by the library */
 export type MessageType = keyof proto.Message
 
@@ -175,6 +172,10 @@ type SharePhoneNumber = {
 
 type RequestPhoneNumber = {
     requestPhoneNumber: boolean
+}
+
+export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapshot, 'productImage'> & {
+    productImage: WAMediaUpload
 }
 
 export type MediaType = keyof typeof MEDIA_HKDF_KEY_MAPPING
