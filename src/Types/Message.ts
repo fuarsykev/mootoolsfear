@@ -183,7 +183,7 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WithDimensions)
+    } & Mentionable & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable & WASendableProduct & WithDimensions)
     | ({
         video: WAMediaUpload
         caption?: string
@@ -209,7 +209,7 @@ export type AnyMediaMessageContent = (
         fileName?: string
         caption?: string
     } & Contextable & Buttonable & Templatable & Interactiveable & Shopable & Collectionable & Cardsable))
-    & { mimetype?: string } & Editable & WASendableProduct
+    & { mimetype?: string } & Editable
 
 export type ButtonReplyInfo = {
     displayText: string
