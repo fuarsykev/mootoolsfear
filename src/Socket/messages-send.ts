@@ -4,7 +4,7 @@ import NodeCache from 'node-cache'
 import { proto } from '../../WAProto'
 import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
 import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
-import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds } from '../Utils'
+import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getContentType, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds, normalizeMessageContent } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
 import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
 import { makeNewsletterSocket } from './newsletter'
@@ -53,24 +53,20 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			msg.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
 		}
 		
-		if (msg?.deviceSentMessage?.message?.buttonsMessage) {
-			msg = JSON.parse(JSON.stringify(msg))
-  
-			msg.deviceSentMessage!.message!.buttonsMessage!.headerType = proto.Message.ButtonsMessage.HeaderType.EMPTY
+		if (msg?.deviceSentMessage?.message?.interactiveMessage) {
+			msg = JSON.parse(JSON.stringify(msg))  
 		}
   
-		if (msg?.buttonsMessage) {
+		if (msg?.interactiveMessage) {
 			msg = JSON.parse(JSON.stringify(msg))
-  
-			msg.buttonsMessage!.headerType = proto.Message.ButtonsMessage.HeaderType.EMPTY
 		}
 		
 		if (msg?.deviceSentMessage?.message?.templateMessage) {
-			msg = JSON.parse(JSON.stringify(msg))
+			msg = JSON.stringify(msg)
 		}
 
 		if (msg?.templateMessage) {
-		    msg = JSON.parse(JSON.stringify(msg))
+		    msg = JSON.stringify(msg)
 		}
 
 		return msg;
@@ -620,9 +616,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				if(additionalNodes && additionalNodes.length > 0) {
                       (stanza.content as BinaryNode[]).push(...additionalNodes);
                 }
-                      
-                if(!isNewsletter && (message?.viewOnceMessage?.message?.interactiveMessage || message?.viewOnceMessageV2?.message?.interactiveMessage || message?.viewOnceMessageV2Extension?.message?.interactiveMessage || message?.interactiveMessage) || (message?.viewOnceMessage?.message?.buttonsMessage || message?.viewOnceMessageV2?.message?.buttonsMessage || message?.viewOnceMessageV2Extension?.message?.buttonsMessage || message?.buttonsMessage)) {
-                       (stanza.content as BinaryNode[]).push({
+                const inMsg = normalizeMessageContent(message)
+                const key: string = getContentType(inMsg)
+                const nativeMsg = (key === 'interactiveMessage' || key === 'buttonsMessage') || null
+                if(!isNewsletter && nativeMsg) {
+                       const nativeNodes = [{
 						  tag: 'biz',
 						  attrs: {},
 					      content: [{
@@ -638,8 +636,10 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			   				      }
 							  }]
     					  }]
-				       }
-				    );
+				       }]
+				       const nodesMsg = additionalNodes ? additionalNodes.find(({ content }) => content ? content.find(({ tag }) => tag ? tag === 'interactive' : null) : null) : null
+                       const nodeMsg = ([nodesMsg] || nativeNodes)
+                       (stanza.content as BinaryNode[]).push(...nodeMsg);
 				}                
 
 				const buttonType = getButtonType(message)
