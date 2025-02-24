@@ -903,9 +903,9 @@ export const generateWAMessageContent = async(
            message.cards.map(async slide => {              
               const { image, video, product, title, caption, footer, buttons } = slide           
               let header
-              if(product && image) {
+              if(product) {
                  const { imageMessage } = await prepareWAMessageMedia(
-                     { image: image, ...options }, 
+                     { image: product.productImage, ...options }, 
                      options
                  );
 		         header = {
