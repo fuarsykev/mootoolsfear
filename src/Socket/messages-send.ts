@@ -617,13 +617,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                       (stanza.content as BinaryNode[]).push(...additionalNodes);
                 }
                 const inMsg = normalizeMessageContent(message) || null
-                if(inMsg) {
-                   inMsg = inMsg
-                }
                 const key = inMsg ? getContentType(inMsg) : null
-                if(key) {
-                   key = key
-                }
                 if(!isNewsletter && (key === 'interactiveMessage' || key === 'buttonsMessage')) {
                     (stanza.content as BinaryNode[]).push(
                        {
