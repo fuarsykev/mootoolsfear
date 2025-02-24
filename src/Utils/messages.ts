@@ -647,9 +647,6 @@ export const generateWAMessageContent = async(
 		          }
 		      }
 	      }
-	   } else {
-	       throw new Boom('Invalid media type', 
-	       { statusCode: 400 })
 	   }
        m.requestPaymentMessage = WAProto.Message.RequestPaymentMessage.fromObject({
 	       expiryTimestamp: message.requestPayment.expiry,
