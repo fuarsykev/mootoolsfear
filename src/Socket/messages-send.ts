@@ -643,7 +643,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                                 return false;
                             }
                             return true;
-                            }).map((item) => filterNativeNode(item));
+                            });
                         } else {
                             return node;
                         }
@@ -666,7 +666,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                                 return false;
                             }
                             return true;
-                            }).map((item) => filterBotNode(item));
+                            });
                         } else {
                             return node;
                         }
