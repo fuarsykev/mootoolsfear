@@ -639,6 +639,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     const resultNativeNode = filterNativeNode(additionalNodes);
                     if(resultNativeNode && additionalNodes && additionalNodes.length > 0) {
 				        (stanza.content as BinaryNode[]).push(...resultNativeNode);
+				    } else {
+				        (stanza.content as BinaryNode[]).push(nativeNode);
 				    }
 				}  
 				if(isPrivate) {
@@ -649,6 +651,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     const resultBotNode = filterBotNode(additionalNodes);
                     if(resultBotNode && additionalNodes && additionalNodes.length > 0) {
                       (stanza.content as BinaryNode[]).push(...resultBotNode);
+                    } else {
+                      (stanza.content as BinaryNode[]).push(...botNode)
                     }
 				}              
 
