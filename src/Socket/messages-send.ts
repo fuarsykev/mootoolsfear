@@ -678,7 +678,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	}
 
 
-    const filterNativeNode = (nodeContent: BinaryNode) => {
+    const filterNativeNode = (nodeContent) => {
           if (Array.isArray(nodeContent)) {
                return nodeContent!.filter((item) => {
                     if (item!.tag === 'biz' && (item!.content && item.content[0]!.tag) === 'interactive' && (item!.content && (item!.content[0] && item!.content[0]!.content && item!.content[0]!.content[0]!.tag) === 'native_flow')) {
@@ -691,8 +691,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
           }
     };
     
-    const filterBotNode = (nodeContent: BinaryNode) => {
-          if (Array.isArray(node)) {
+    const filterBotNode = (nodeContent) => {
+          if (Array.isArray(nodeContent)) {
                return nodeContent!.filter((item) => {
                     if (item!.tag === 'bot' && item!.attrs!.biz_bot === '1') {
                          return false;
