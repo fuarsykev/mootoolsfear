@@ -636,7 +636,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							  }]
     					  }]
 				    }
-				    if(additionalNodes && additionalNodes.some(node => JSON.stringify(node) === JSON.stringify(nativeNode))) {
+				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node) === JSON.stringify(nativeNode))) {
                         (stanza.content as BinaryNode[]).push(...additionalNodes);
                     } else {
                         (stanza.content as BinaryNode[]).push(nativeNode);
@@ -650,7 +650,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				          tag: 'bot', 
 				          attrs: { biz_bot: '1' }
 				    };
-                    if(additionalNodes && additionalNodes.some(node => JSON.stringify(node) === JSON.stringify(targetNode))) {
+                    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node) === JSON.stringify(targetNode))) {
                         (stanza.content as BinaryNode[]).push(...additionalNodes);
                     } else {
                         (stanza.content as BinaryNode[]).push(targetNode);
@@ -871,7 +871,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 			return message
 		},
-		sendStatusMention: async(
+		sendStatusMentions: async(
 		   content: AnyMessageContent, 
 		   jids: string[] = []
 		) => { 
