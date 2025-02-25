@@ -636,21 +636,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							  }]
     					  }]
 				    }
-				    const filterNativeNode = (node) => {
-                        if (Array.isArray(node)) {
-                            return node.filter((item) => {
-                                if (item.tag === 'biz' && (item.content && item.content[0]!.tag) === 'interactive' && (item.content && (item!.content[0] && item!.content[0]!.content && item!.content[0]!.content[0]!.tag) === 'native_flow')) {
-                                return false;
-                            }
-                            return true;
-                            });
-                        } else {
-                            return node;
-                        }
-                    }
-                    let resultNativeNode;
-                    if(additionalNodes && additionalNodes.length > 0) {
-                        resultNativeNode = filterNativeNode(additionalNodes)
+                    const resultNativeNode = filterNativeNode(additionalNodes);
+                    if(resultNativeNode && additionalNodes && additionalNodes.length > 0) {
 				        (stanza.content as BinaryNode[]).push(...resultNativeNode);
 				    }
 				}  
@@ -659,21 +646,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				          tag: 'bot', 
 				          attrs: { biz_bot: '1' }
 				    };
-				    const filterBotNode = (node) => {
-                        if (Array.isArray(node)) {
-                            return node.filter((item) => {
-                                if (item.tag === 'bot' && item!.attrs!.biz_bot === '1') {
-                                return false;
-                            }
-                            return true;
-                            });
-                        } else {
-                            return node;
-                        }
-                    }
-                    let resultBotNode;
-                    if(additionalNodes && additionalNodes.length > 0) {
-                       resultBotNode = filterBotNode(additionalNodes)
+                    const resultBotNode = filterBotNode(additionalNodes);
+                    if(resultBotNode && additionalNodes && additionalNodes.length > 0) {
                       (stanza.content as BinaryNode[]).push(...resultBotNode);
                     }
 				}              
@@ -703,6 +677,33 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		return msgId
 	}
 
+
+    const filterNativeNode = (node: BinaryNode[]) => {
+          if (Array.isArray(node)) {
+               return node.filter((item) => {
+                    if (item.tag === 'biz' && (item.content && item.content[0]!.tag) === 'interactive' && (item.content && (item!.content[0] && item!.content[0]!.content && item!.content[0]!.content[0]!.tag) === 'native_flow')) {
+                         return false;
+                    }
+               return true;
+               });
+          } else {
+               return node;
+          }
+    };
+    
+    const filterBotNode = (node: BinaryNode[]) => {
+          if (Array.isArray(node)) {
+               return node.filter((item) => {
+                    if (item.tag === 'bot' && item!.attrs!.biz_bot === '1') {
+                         return false;
+                    }
+               return true;
+               });
+          } else {
+               return node;
+          }
+    };
+    
 	const getTypeMessage = (msg: proto.IMessage) => {
 		if (msg.viewOnceMessage) {
 			return getTypeMessage(msg.viewOnceMessage.message!)
