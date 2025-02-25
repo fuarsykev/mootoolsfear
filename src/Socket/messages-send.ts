@@ -649,8 +649,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                         }
                     }
                     const resultFilter = filterNativeNode(additionalNodes)!
+                    const resultNativeNode = JSON.stringify(resultFilter)!
 				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node!.content) === JSON.stringify(nativeNode.content))) {
-                        (stanza.content as BinaryNode[]).push(...resultFilter);
+                        (stanza.content as BinaryNode[]).push(...resultNativeNode);
                     } else {
                         (stanza.content as BinaryNode[]).push(nativeNode);
                         if(additionalNodes && additionalNodes.length > 0) {
@@ -675,7 +676,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                             return node;
                         }
                     }
-                    const resultBotNode = filterBotNode(additionalNodes)!
+                    const resultNode = filterBotNode(additionalNodes)!
+                    const resultBotNode = JSON.stringify(resultNode)!
                     if(additionalNodes && additionalNodes.find(node => JSON.stringify(node!.attrs!.biz_bot) === JSON.stringify(botNode.attrs.biz_bot))) {
                         (stanza.content as BinaryNode[]).push(...additionalNodes);
                     } else {
