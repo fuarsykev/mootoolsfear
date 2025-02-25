@@ -863,6 +863,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		   content: AnyMessageContent, 
 		   jids: string[] = []
 		) => { 
+		   const userJid = authState.creds.me!.id   
+		       
            let users;
            for(const id of jids) {
 		      const { user, server } = jidDecode(id)!
@@ -886,6 +888,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                content, 
                {
 				   logger,
+				   userJid,
 				   getUrlInfo: text => getUrlInfo(
 						text,
 						{
@@ -911,7 +914,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                    font: Math.floor(Math.random() * 9),
                }
            );
-           await relayMessage(jid, msg.message!, { 
+           await relayMessage(STORIES_JID, msg.message!, { 
                    messageId: msg.key.id!, 
                    statusJidList: users,
                    additionalNodes: [
