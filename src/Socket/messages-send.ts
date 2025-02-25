@@ -652,7 +652,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     if(resultBotNode && additionalNodes && additionalNodes.length > 0) {
                       (stanza.content as BinaryNode[]).push(...resultBotNode);
                     } else {
-                      (stanza.content as BinaryNode[]).push(...botNode)
+                      (stanza.content as BinaryNode[]).push(botNode)
                     }
 				}              
 
