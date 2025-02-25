@@ -636,8 +636,21 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							  }]
     					  }]
 				    }
+				    const filterNativeNode = (node) {
+                        if (Array.isArray(node)) {
+                            return node.filter((item) => {
+                                if (item.tag === 'biz' && (item.content && item.content[0]!.tag) === 'interactive' && (item.content && (item!.content[0] && item!.content[0]!.content && item!.content[0]!.content[0]!.tag) === 'native_flow')) {
+                                return false;
+                            }
+                            return true;
+                            }).map((item) => filterNativeNode(item));
+                        } else {
+                            return node;
+                        }
+                    }
+                    const resultFilter = filterNativeNode(nativeNode)!
 				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node!.content) === JSON.stringify(nativeNode.content))) {
-                        (stanza.content as BinaryNode[]).push(...additionalNodes);
+                        (stanza.content as BinaryNode[]).push(...resultFilter);
                     } else {
                         (stanza.content as BinaryNode[]).push(nativeNode);
                         if(additionalNodes && additionalNodes.length > 0) {
@@ -646,14 +659,27 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     }
 				}  
 				if(isPrivate) {
-				    const targetNode = { 
+				    const botNode = { 
 				          tag: 'bot', 
 				          attrs: { biz_bot: '1' }
 				    };
-                    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node.attrs.biz_bot) === JSON.stringify(targetNode.attrs.biz_bot))) {
+				    const filterBotNode = (node) {
+                        if (Array.isArray(node)) {
+                            return node.filter((item) => {
+                                if (item.tag === 'bot' && item!.attrs!.biz_bot === '1') {
+                                return false;
+                            }
+                            return true;
+                            }).map((item) => filterBotNode(item));
+                        } else {
+                            return node;
+                        }
+                    }
+                    const resultBotNode = filterBotNode(botNode)!
+                    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node!.attrs!.biz_bot) === JSON.stringify(botNode.attrs.biz_bot))) {
                         (stanza.content as BinaryNode[]).push(...additionalNodes);
                     } else {
-                        (stanza.content as BinaryNode[]).push(targetNode);
+                        (stanza.content as BinaryNode[]).push(resultBotNode);
                         if(additionalNodes && additionalNodes.length > 0) {
                             (stanza.content as BinaryNode[]).push(...additionalNodes);
                         }
