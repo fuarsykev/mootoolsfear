@@ -619,8 +619,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                 const inMsg = normalizeMessageContent(message) || null
                 const key = inMsg ? getContentType(inMsg) : null
                 if(!isNewsletter && (key === 'interactiveMessage' || key === 'buttonsMessage')) {
-                    (stanza.content as BinaryNode[]).push(
-                       {
+                    const nativeNode = {
 						  tag: 'biz',
 						  attrs: {},
 					      content: [{
@@ -636,16 +635,29 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			   				      }
 							  }]
     					  }]
-				       }
-				    );
+				    }
+				    if(additionalNodes && additionalNodes.some(node => JSON.stringify(node) === JSON.stringify(nativeNode))) {
+                        (stanza.content as BinaryNode[]).push(...additionalNodes);
+                    } else {
+                        (stanza.content as BinaryNode[]).push(nativeNode);
+                        if(additionalNodes && additionalNodes.length > 0) {
+                            (stanza.content as BinaryNode[]).push(...additionalNodes);
+                        }
+                    }
 				}  
 				if(isPrivate) {
-				    (stanza.content as BinaryNode[]).push(
-				       {
-				          tag: 'bot',
+				    const targetNode = { 
+				          tag: 'bot', 
 				          attrs: { biz_bot: '1' }
-				       },
-				    );
+				    };
+                    if(additionalNodes && additionalNodes.some(node => JSON.stringify(node) === JSON.stringify(targetNode))) {
+                        (stanza.content as BinaryNode[]).push(...additionalNodes);
+                    } else {
+                        (stanza.content as BinaryNode[]).push(targetNode);
+                        if(additionalNodes && additionalNodes.length > 0) {
+                            (stanza.content as BinaryNode[]).push(...additionalNodes);
+                        }
+                    }
 				}              
 
 				const buttonType = getButtonType(message)
