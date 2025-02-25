@@ -636,7 +636,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							  }]
     					  }]
 				    }
-				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node.content[0].tag) === JSON.stringify(nativeNode.content[0].tag))) {
+				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node!.content) === JSON.stringify(nativeNode.content))) {
                         (stanza.content as BinaryNode[]).push(...additionalNodes);
                     } else {
                         (stanza.content as BinaryNode[]).push(nativeNode);
@@ -876,7 +876,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		   jids: string[] = []
 		) => { 
 		   const userJid = jidNormalizedUser(authState.creds.me!.id) 		       
-           let allUsers = [];
+           let allUsers: string[] = [];
 
            for(const id of jids) {
 		      const { user, server } = jidDecode(id)!
@@ -886,13 +886,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                  let userId = await groupMetadata(id)
                  let participant = await userId.participants
                  let users = await Promise.all(participant.map(u => jidNormalizedUser(u.id))); 
-                 allUsers = [...allUsers, ...users];
+                 allUsers = [...allUsers as string[], ...users as string[]];
               } else if(isPrivate) {
                  let users = await Promise.all(jids.map(id => id.replace(/\b\d{18}@.{4}\b/g, '')));
-                 allUsers = [...allUsers, ...users];
+                 allUsers = [...allUsers as string[], ...users as string[]];
               }
               if(!allUsers.find(user => user.includes(userJid))) {
-                 allUsers.push(userJid)
+                 (allUsers as string[]).push(userJid)
               }
            };
            const getRandomHexColor = () => {
