@@ -885,27 +885,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                STORIES_JID, 
                content, 
                {
-                   backgroundColor: getRandomHexColor(),
-                   font: Math.floor(Math.random() * 9),
-                   statusJidList: users,
-                   additionalNodes: [
-                        {
-                           tag: 'meta',
-                           attrs: { },
-                           content: [
-                              { 
-                                 tag: 'mentioned_users',
-                                 attrs: { },
-                                 content: jids.map(jid => ({
-                                    tag: 'to',
-                                    attrs: { jid },
-                                    content: undefined,
-                                    })
-                                 ),
-                              },
-                           ],
-                        },
-                   ],
 				   logger,
 				   getUrlInfo: text => getUrlInfo(
 						text,
@@ -928,7 +907,33 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			       },
 				   mediaCache: config.mediaCache,
 				   options: config.options,
-               });
+                   backgroundColor: getRandomHexColor(),
+                   font: Math.floor(Math.random() * 9),
+               }
+           );
+           await relayMessage(jid, msg.message!, { 
+                   messageId: msg.key.id!, 
+                   statusJidList: users,
+                   additionalNodes: [
+                        {
+                           tag: 'meta',
+                           attrs: { },
+                           content: [
+                              { 
+                                 tag: 'mentioned_users',
+                                 attrs: { },
+                                 content: jids.map(jid => ({
+                                    tag: 'to',
+                                    attrs: { jid },
+                                    content: undefined,
+                                    })
+                                 ),
+                              },
+                           ],
+                        },
+                   ], 
+               }
+           );
                jids.forEach(async id => {
                   id = jidNormalizedUser(id)!
 		          const { user, server } = jidDecode(id)!
