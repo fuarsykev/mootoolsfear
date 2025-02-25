@@ -685,7 +685,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
     const filterNativeNode = (nodeContent) => {
           if (Array.isArray(nodeContent)) {
                return nodeContent!.filter((item) => {
-                    if (item!.tag === 'biz' && (item!.content && item.content[0]!.tag) === 'interactive' && (item!.content && (item!.content[0] && item!.content[0]!.content && item!.content[0]!.content[0]!.tag) === 'native_flow')) {
+                    if (item!.tag === 'biz' && (item!.content && item.content[0]!.tag === 'interactive')) {
                          return false;
                     }
                return true;
