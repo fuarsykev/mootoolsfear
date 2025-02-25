@@ -678,29 +678,29 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	}
 
 
-    const filterNativeNode = (node: BinaryNode[]) => {
-          if (Array.isArray(node)) {
-               return node.filter((item) => {
-                    if (item.tag === 'biz' && (item.content && item.content[0]!.tag) === 'interactive' && (item.content && (item!.content[0] && item!.content[0]!.content && item!.content[0]!.content[0]!.tag) === 'native_flow')) {
+    const filterNativeNode = (nodeContent: BinaryNode) => {
+          if (Array.isArray(nodeContent)) {
+               return nodeContent!.filter((item) => {
+                    if (item!.tag === 'biz' && (item!.content && item.content[0]!.tag) === 'interactive' && (item!.content && (item!.content[0] && item!.content[0]!.content && item!.content[0]!.content[0]!.tag) === 'native_flow')) {
                          return false;
                     }
                return true;
                });
           } else {
-               return node;
+               return nodeContent;
           }
     };
     
-    const filterBotNode = (node: BinaryNode[]) => {
+    const filterBotNode = (nodeContent: BinaryNode) => {
           if (Array.isArray(node)) {
-               return node.filter((item) => {
-                    if (item.tag === 'bot' && item!.attrs!.biz_bot === '1') {
+               return nodeContent!.filter((item) => {
+                    if (item!.tag === 'bot' && item!.attrs!.biz_bot === '1') {
                          return false;
                     }
                return true;
                });
           } else {
-               return node;
+               return nodeContent;
           }
     };
     
