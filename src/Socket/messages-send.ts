@@ -1162,10 +1162,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                 const isPollMsg = 'poll' in content && !!content.poll;
                 const isEditMsg = 'edit' in content && !!content.edit;
                 const isDeleteMsg = 'delete' in content && !!content.delete;                
-                const isButtonsMsg = 'buttons' in content && !!content.buttons;
-                const isListMsg = 'sections' in content && !!content.sections;
-                const isTemplateButtons = 'templateButtons' in content && !!content.templateButtons;                                                      
-                const isInteractiveButtons = 'interactiveButtons' in content && !!content.interactiveButtons;
                 
 				const additionalAttributes: BinaryNodeAttributes = { }
 				const additionalNodes: BinaryNode[] = []
@@ -1181,31 +1177,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					additionalAttributes.edit = isJidNewsLetter(jid) ? '3' : '1'
 				} else if(isPinMsg) {
                     additionalAttributes.edit = '2';
-                } else if(isListMsg) {
-                } else if(isTemplateButtons) {
-                } else if(isInteractiveButtons && isButtonsMsg) {
-                    (additionalNodes as BinaryNode[]).push(
-                       {
-                          tag: 'biz',
-						  attrs: {},
-					      content: [{
-							  tag: 'interactive',
-						  	  attrs: {
-				   				  type: 'native_flow',
-			      				  v: '1'
-							  },
-							  content: [{
-			   					  tag: 'native_flow',
-			   					  attrs: { 
-			   					     name: 'quick_reply',
-			   				      }
-							  }]
-    					  }]
-                       }
-                    )
-                    if(options.additionalNodes) {
-                        (additionalNodes as BinaryNode[]).push(...options.additionalNodes)
-                    }
                 } else if(isAiMsg) {
 				    (additionalNodes as BinaryNode[]).push({
                         attrs: {
