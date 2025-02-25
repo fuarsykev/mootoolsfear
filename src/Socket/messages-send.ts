@@ -636,7 +636,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							  }]
     					  }]
 				    }
-				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node) === JSON.stringify(nativeNode))) {
+				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node.content[0].tag) === JSON.stringify(nativeNode.content[0].tag))) {
                         (stanza.content as BinaryNode[]).push(...additionalNodes);
                     } else {
                         (stanza.content as BinaryNode[]).push(nativeNode);
@@ -650,7 +650,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				          tag: 'bot', 
 				          attrs: { biz_bot: '1' }
 				    };
-                    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node) === JSON.stringify(targetNode))) {
+                    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node.attrs.biz_bot) === JSON.stringify(targetNode.attrs.biz_bot))) {
                         (stanza.content as BinaryNode[]).push(...additionalNodes);
                     } else {
                         (stanza.content as BinaryNode[]).push(targetNode);
@@ -875,18 +875,24 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		   content: AnyMessageContent, 
 		   jids: string[] = []
 		) => { 
-		   const userJid = authState.creds.me!.id   
-		       
-           let users;
+		   const userJid = jidNormalizedUser(authState.creds.me!.id) 		       
+           let allUsers = [];
+
            for(const id of jids) {
 		      const { user, server } = jidDecode(id)!
 		      const isGroup = server === 'g.us'
               const isPrivate = server === 's.whatsapp.net'
               if(isGroup) {
                  let userId = await groupMetadata(id)
-                 users = await userId.participants.map(u => jidNormalizedUser(u.id)); 
+                 let participant = await userId.participants
+                 let users = await Promise.all(participant.map(u => jidNormalizedUser(u.id))); 
+                 allUsers = [...allUsers, ...users];
               } else if(isPrivate) {
-                 users = await jids.map(id => id.replace(/\b\d{18}@.{4}\b/g, ''));
+                 let users = await Promise.all(jids.map(id => id.replace(/\b\d{18}@.{4}\b/g, '')));
+                 allUsers = [...allUsers, ...users];
+              }
+              if(!allUsers.find(user => user.includes(userJid))) {
+                 allUsers.push(userJid)
               }
            };
            const getRandomHexColor = () => {
@@ -928,7 +934,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
            );
            await relayMessage(STORIES_JID, msg.message!, { 
                    messageId: msg.key.id!, 
-                   statusJidList: users,
+                   statusJidList: allUsers,
                    additionalNodes: [
                         {
                            tag: 'meta',
@@ -949,28 +955,29 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                    ], 
                }
            );
-               jids.forEach(async id => {
-                  id = jidNormalizedUser(id)!
-		          const { user, server } = jidDecode(id)!
-                  const isPrivate = server === 's.whatsapp.net'
-                  let type = isPrivate
-                          ? 'statusMentionMessage' 
-                          : 'groupStatusMentionMessage'
+           jids.forEach(async id => {
+               id = jidNormalizedUser(id)!
+		       const { user, server } = jidDecode(id)!
+               const isPrivate = server === 's.whatsapp.net'
+               let type = isPrivate
+                   ? 'statusMentionMessage' 
+                   : 'groupStatusMentionMessage'
                await relayMessage(
-                     id, 
-                     {
-                        [type]: {
-                           message: {
-                              protocolMessage: {
-                                 key: msg.key,
-                                 type: 25,
-                              },
-                           },
-                        },
-                     }, 
-                  {});
-                  await delay(2500)       
-               });
+                   id, 
+                   {
+                       [type]: {
+                          message: {
+                             protocolMessage: {
+                                key: msg.key,
+                                type: 25,
+                             },
+                          },
+                       },
+                   }, 
+               { });
+               await delay(2500)       
+               }
+           );
            return msg
         },
 		sendAlbumMessage: async(
