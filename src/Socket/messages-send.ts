@@ -648,8 +648,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                             return node;
                         }
                     }
-                    const resultNativeNode = filterNativeNode(additionalNodes)!
-				    (stanza.content as BinaryNode[]).push(...resultNativeNode);
+                    let resultNativeNode;
+                    if(additionalNodes && additionalNodes.length > 0) {
+                        resultNativeNode = filterNativeNode(additionalNodes)
+				        (stanza.content as BinaryNode[]).push(...resultNativeNode);
+				    }
 				}  
 				if(isPrivate) {
 				    const botNode = { 
@@ -668,8 +671,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                             return node;
                         }
                     }
-                    const resultBotNode = filterBotNode(additionalNodes)!
-                    (stanza.content as BinaryNode[]).push(...resultBotNode);
+                    let resultBotNode;
+                    if(additionalNodes && additionalNodes.length > 0) {
+                       resultBotNode = filterBotNode(additionalNodes)
+                      (stanza.content as BinaryNode[]).push(...resultBotNode);
+                    }
 				}              
 
 				const buttonType = getButtonType(message)
