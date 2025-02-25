@@ -35,6 +35,24 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	} = sock
 
     const patchMessageRequiresBeforeSending = (msg: proto.IMessage, recipientJids: string[]): proto.IMessage => {
+		if (msg?.deviceSentMessage?.message?.listMessage && msg?.deviceSentMessage?.message?.listMessage?.productListInfo) {
+			msg = JSON.parse(JSON.stringify(msg))
+  
+			msg.deviceSentMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.PRODUCT_LIST
+		}
+		
+		if (msg?.viewOnceMessage?.message?.listMessage && msg?.viewOnceMessage?.message?.listMessage?.productListInfo) {
+			msg = JSON.parse(JSON.stringify(msg))
+  
+			msg.viewOnceMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.PRODUCT_LIST
+		}
+  
+		if (msg?.listMessage && msg?.listMessage?.productListInfo) {
+			msg = JSON.parse(JSON.stringify(msg))
+  
+			msg.listMessage!.listType = proto.Message.ListMessage.ListType.PRODUCT_LIST
+		}
+		
 		if (msg?.deviceSentMessage?.message?.listMessage && (msg?.deviceSentMessage?.message?.listMessage?.sections && msg?.deviceSentMessage?.message?.listMessage?.sections?.length > 0)) {
 			msg = JSON.parse(JSON.stringify(msg))
   
@@ -685,7 +703,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
     const filterNativeNode = (nodeContent) => {
           if (Array.isArray(nodeContent)) {
                return nodeContent!.filter((item) => {
-                    if (item!.tag === 'biz' && (item!.content && item!.content!.filter((tag) => tag!.tag === 'interactive'))) {
+                    if (item!.tag === 'biz' && (item!.content && item!.content!.filter((tag) => { tag!.tag === 'interactive' && tag!.attrs!.type === 'native_flow' && tag!.attrs!.v === '1' }))) {
                          return false;
                     }
                return true;
