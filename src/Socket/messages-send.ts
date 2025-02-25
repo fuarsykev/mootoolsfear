@@ -648,16 +648,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                             return node;
                         }
                     }
-                    const resultFilter = filterNativeNode(additionalNodes)!
-                    const resultNativeNode = JSON.stringify(resultFilter)!
-				    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node!.content) === JSON.stringify(nativeNode.content))) {
-                        (stanza.content as BinaryNode[]).push(...resultNativeNode);
-                    } else {
-                        (stanza.content as BinaryNode[]).push(nativeNode);
-                        if(additionalNodes && additionalNodes.length > 0) {
-                            (stanza.content as BinaryNode[]).push(...additionalNodes);
-                        }
-                    }
+                    const resultNativeNode = filterNativeNode(additionalNodes)!
+				    (stanza.content as BinaryNode[]).push(...resultNativeNode);
 				}  
 				if(isPrivate) {
 				    const botNode = { 
@@ -676,16 +668,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                             return node;
                         }
                     }
-                    const resultNode = filterBotNode(additionalNodes)!
-                    const resultBotNode = JSON.stringify(resultNode)!
-                    if(additionalNodes && additionalNodes.find(node => JSON.stringify(node!.attrs!.biz_bot) === JSON.stringify(botNode.attrs.biz_bot))) {
-                        (stanza.content as BinaryNode[]).push(...additionalNodes);
-                    } else {
-                        (stanza.content as BinaryNode[]).push(botNode);
-                        if(additionalNodes && additionalNodes.length > 0) {
-                            (stanza.content as BinaryNode[]).push(...additionalNodes);
-                        }
-                    }
+                    const resultBotNode = filterBotNode(additionalNodes)!
+                    (stanza.content as BinaryNode[]).push(...resultBotNode);
 				}              
 
 				const buttonType = getButtonType(message)
