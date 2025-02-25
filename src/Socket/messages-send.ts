@@ -6,7 +6,7 @@ import { DEFAULT_CACHE_TTLS, WA_DEFAULT_EPHEMERAL } from '../Defaults'
 import { AnyMessageContent, Media, MediaConnInfo, MessageReceiptType, MessageRelayOptions, MiscMessageGenerationOptions, SocketConfig, WAMediaUploadFunctionOpts, WAMessageKey } from '../Types'
 import { aggregateMessageKeysNotFromMe, assertMediaContent, bindWaitForEvent, decryptMediaRetryData, delay, encodeSignedDeviceIdentity, encodeWAMessage, encryptMediaRetryRequest, extractDeviceJids, generateMessageID, generateWAMessage, generateWAMessageFromContent, getContentType, getStatusCodeForMediaRetry, getUrlFromDirectPath, getWAUploadToServer, parseAndInjectE2ESessions, unixTimestampSeconds, normalizeMessageContent } from '../Utils'
 import { getUrlInfo } from '../Utils/link-preview'
-import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET } from '../WABinary'
+import { areJidsSameUser, BinaryNode, BinaryNodeAttributes, getBinaryNodeChild, getBinaryNodeChildren, isJidGroup, isJidNewsLetter, isJidUser, jidDecode, jidEncode, jidNormalizedUser, JidWithDevice, S_WHATSAPP_NET, STORIES_JID } from '../WABinary'
 import { makeNewsletterSocket } from './newsletter'
 import ListType = proto.Message.ListMessage.ListType;
 import { Readable } from 'stream'
@@ -638,7 +638,15 @@ export const makeMessagesSocket = (config: SocketConfig) => {
     					  }]
 				       }
 				    );
-				}                
+				}  
+				if(isPrivate) {
+				    (stanza.content as BinaryNode[]).push(
+				       {
+				          tag: 'bot',
+				          attrs: { biz_bot: '1' }
+				       },
+				    );
+				}              
 
 				const buttonType = getButtonType(message)
 				if(buttonType) {
@@ -851,6 +859,100 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 			return message
 		},
+		sendStatusMention: async(
+		   content: AnyMessageContent, 
+		   jids: string[] = []
+		) => { 
+           let users;
+           for(const id of jids) {
+		      const { user, server } = jidDecode(id)!
+		      const isGroup = server === 'g.us'
+              const isPrivate = server === 's.whatsapp.net'
+              if(isGroup) {
+                 let userId = await groupMetadata(id)
+                 users = await userId.participants.map(u => jidNormalizedUser(u.id)); 
+              } else if(isPrivate) {
+                 users = await jids.map(id => id.replace(/\b\d{18}@.{4}\b/g, ''));
+              }
+           };
+           const getRandomHexColor = () => {
+              return "#" + Math.floor(Math.random() * 16777215)
+                 .toString(16)
+                 .padStart(6, "0");
+           }
+           let mediaHandle;
+           let msg = await generateWAMessage(
+               STORIES_JID, 
+               content, 
+               {
+                   backgroundColor: getRandomHexColor(),
+                   font: Math.floor(Math.random() * 9),
+                   statusJidList: users,
+                   additionalNodes: [
+                        {
+                           tag: 'meta',
+                           attrs: { },
+                           content: [
+                              { 
+                                 tag: 'mentioned_users',
+                                 attrs: { },
+                                 content: jids.map(jid => ({
+                                    tag: 'to',
+                                    attrs: { jid },
+                                    content: undefined,
+                                    })
+                                 ),
+                              },
+                           ],
+                        },
+                   ],
+				   logger,
+				   getUrlInfo: text => getUrlInfo(
+						text,
+						{
+							thumbnailWidth: linkPreviewImageThumbnailWidth,
+							fetchOpts: {
+								timeout: 3_000,
+								...axiosOptions || { }
+							},
+							logger,
+							uploadImage: generateHighQualityLinkPreview
+							? waUploadToServer
+							: undefined
+						},
+				   ),
+				   upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
+						const up = await waUploadToServer(readStream, { ...opts })
+					    mediaHandle = up.handle
+					    return up
+			       },
+				   mediaCache: config.mediaCache,
+				   options: config.options,
+               });
+               jids.forEach(async id => {
+                  id = jidNormalizedUser(id)!
+		          const { user, server } = jidDecode(id)!
+                  const isPrivate = server === 's.whatsapp.net'
+                  let type = isPrivate
+                          ? 'statusMentionMessage' 
+                          : 'groupStatusMentionMessage'
+               await relayMessage(
+                     id, 
+                     {
+                        [type]: {
+                           message: {
+                              protocolMessage: {
+                                 key: msg.key,
+                                 type: 25,
+                              },
+                           },
+                        },
+                     }, 
+                  {});
+                  await delay(2500)       
+               });
+           return msg
+        },
 		sendAlbumMessage: async(
 		    jid: string, 
 		    medias: Media[], 
