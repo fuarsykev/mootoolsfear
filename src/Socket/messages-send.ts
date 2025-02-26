@@ -470,7 +470,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
         
         const innerMsg = normalizeMessageContent(message) || null
         const key: string = innerMsg ? getContentType(innerMsg) : null
-        message[key]!.contextInfo!.expiration = message[key]!.contextInfo!.expiration || +eph
+        if(message && message[key]) {
+            message[key]!.contextInfo!.expiration = message[key]!.contextInfo!.expiration || +eph
+        }
 
 		await authState.keys.transaction(
 			async() => {
