@@ -471,10 +471,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
         const innerMsg = normalizeMessageContent(message)!
         const key = getContentType(innerMsg)!
         if(message && message[key]) {
-            message[key]!.contextInfo: proto.IContextInfo = {   
+            const contextInfo: proto.IContextInfo = {   
                  expiration: message[key]!.contextInfo!.expiration || +eph,
                  ...((message[key] && message[key]!.contextInfo) ? { ...message[key]!.contextInfo } : {})
-            }
+            };
+            message[key]!.contextInfo = contextInfo
         }
 
 		await authState.keys.transaction(
