@@ -413,7 +413,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		const participants: BinaryNode[] = []
 		const destinationJid = (!isStatus) ? jidEncode(user, isLid ? 'lid' : isGroup ? 'g.us' : isNewsletter ? 'newsletter' : 's.whatsapp.net') : statusJid
 		const binaryNodeContent: BinaryNode[] = []
-		const devices: JidWithDevice[] = []
+		const devices: JidWithDevice[] = []		
 
 		const meMsg: proto.IMessage = {
 			deviceSentMessage: {
@@ -433,6 +433,44 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			const { user, device } = jidDecode(participant.jid)!
 			devices.push({ user, device })
 		}
+		
+		let eph;
+		if(isPrivate) {
+		    const disappearingNode = await query({
+			      tag: 'iq',
+			      attrs: {
+				     type: 'get',
+				     xmlns: 'disappearing_mode',
+				     to: S_WHATSAPP_NET,
+			      },
+            })
+            const expiration =  getBinaryNodeChild(disappearingNode, 'disappearing_mode')
+            return eph = expiration?.attrs?.duration
+        } else if(isGroup) {
+            const disappearingNode = await query({
+			       tag: 'iq',
+			       attrs: {
+				       type: 'get',
+				       xmlns: 'w:g2',
+				       to: jid,
+			       },
+			       content: [
+			           {
+			              tag: 'query', 
+			              attrs: { request: 'interactive' }
+			           } 
+			       ]
+            })
+            const group = getBinaryNodeChild(disappearingNode, 'group')
+            const expiration = getBinaryNodeChild(group, 'ephemeral')
+            return eph = expiration?.attrs?.expiration
+        } else {
+            return eph = 0
+        }
+        
+        const innerMsg = normalizeMessageContent(message) || null
+        const key: string = innerMsg ? getContentType(innerMsg) : null
+        message[key]!.contextInfo!.expiration = message[key]!.contextInfo!.expiration || +eph
 
 		await authState.keys.transaction(
 			async() => {
