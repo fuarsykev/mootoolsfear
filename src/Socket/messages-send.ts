@@ -348,7 +348,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			},
 		})
 
-		return msgId
+		return msgId!
 	}
 
 	const createParticipantNodes = async(
@@ -471,7 +471,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
         const innerMsg = normalizeMessageContent(message)!
         const key = getContentType(innerMsg)!
         if(message && message[key]) {
-            message[key]!.contextInfo!.expiration = {   
+            message[key]!.contextInfo: proto.IContextInfo = {   
                  expiration: message[key]!.contextInfo!.expiration || +eph,
                  ...((message[key] && message[key]!.contextInfo) ? { ...message[key]!.contextInfo } : {})
             }
