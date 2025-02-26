@@ -444,7 +444,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				     to: S_WHATSAPP_NET,
 			      },
             })
-            const expiration =  getBinaryNodeChild(disappearingNode, 'disappearing_mode')
+            const expiration =  getBinaryNodeChild(disappearingNode, 'disappearing_mode')!
             return eph = expiration?.attrs?.duration
         } else if(isGroup) {
             const disappearingNode = await query({
@@ -461,17 +461,20 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			           } 
 			       ]
             })
-            const group = getBinaryNodeChild(disappearingNode, 'group')
-            const expiration = getBinaryNodeChild(group, 'ephemeral')
+            const group = getBinaryNodeChild(disappearingNode, 'group')!
+            const expiration = getBinaryNodeChild(group, 'ephemeral')!
             return eph = expiration?.attrs?.expiration
         } else {
             return eph = 0
         }
         
-        const innerMsg = normalizeMessageContent(message) || null
-        const key: string = innerMsg ? getContentType(innerMsg) : null
+        const innerMsg = normalizeMessageContent(message)!
+        const key = getContentType(innerMsg)!
         if(message && message[key]) {
-            message[key]!.contextInfo!.expiration = message[key]!.contextInfo!.expiration || +eph
+            message[key]!.contextInfo!.expiration = {   
+                 expiration: message[key]!.contextInfo!.expiration || +eph,
+                 ...((message[key] && message[key]!.contextInfo) ? { ...message[key]!.contextInfo } : {})
+            }
         }
 
 		await authState.keys.transaction(
