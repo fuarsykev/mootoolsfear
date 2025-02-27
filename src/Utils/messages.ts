@@ -17,6 +17,7 @@ import {
 	MessageGenerationOptionsFromContent,
 	MessageType,
 	MessageUserReceipt,
+	SocketConfig,
 	WAMediaUpload,
 	WAMessage,
 	WAMessageContent,
@@ -24,11 +25,11 @@ import {
 	WAProto,
 	WATextMessage,
 } from '../Types'
-import { getBinaryNodeChild, isJidGroup, isJidNewsLetter, isJidStatusBroadcast, jidNormalizedUser, S_WHATSAPP_NET } from '../WABinary'
+import { getBinaryNodeChild, isJidGroup, isJidNewsLetter, isJidStatusBroadcast, jidDecode, jidNormalizedUser, S_WHATSAPP_NET } from '../WABinary'
 import { sha256 } from './crypto'
 import { generateMessageID, getKeyAuthor, unixTimestampSeconds } from './generics'
 import { downloadContentFromMessage, encryptedStream, generateThumbnail, getAudioDuration, getAudioWaveform, MediaDownloadOptions, prepareStream } from './messages-media'
-import { makeMessagesSocket } from '../Socket'
+import { makeMessagesSocket } from '../Socket/messages-send'
 
 type MediaUploadData = {
 	media: WAMediaUpload
@@ -1040,12 +1041,22 @@ export const generateWAMessageContent = async(
 	return WAProto.Message.fromObject(m)
 }
 
-export const getEphemeralExpiration = (config: SocketConfig, message: WAMessageContent) => {
+export const getEphemeralExpiration = (
+	jid: string,
+	message: WAMessageContent,
+    config: SocketConfig
+) => {
+    
+    jid = jidNormalizedUser(jid)!
     const sock = makeMessagesSocket(config)
     const {
 		authState,
 		query
 	} = sock
+        
+	const { server } = jidDecode(jid)!
+	const isGroup = server === 'g.us'
+    const isPrivate = server === 's.whatsapp.net'
 
     const innerMessage = normalizeMessageContent(message)!
 	const key: string = getContentType(innerMessage)!
@@ -1079,6 +1090,8 @@ export const getEphemeralExpiration = (config: SocketConfig, message: WAMessageC
             const group = getBinaryNodeChild(disappearingNode, 'group')!
             const expiration = getBinaryNodeChild(group, 'ephemeral')!
             return eph = expiration?.attrs?.expiration
+        } else {
+            return eph = 0
         }
         
         const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)!.contextInfo : innerMessage[key].contextInfo) || { }   
