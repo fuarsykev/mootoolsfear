@@ -35,37 +35,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	} = sock
 
     const patchMessageRequiresBeforeSending = (msg: proto.IMessage, recipientJids: string[]): proto.IMessage => {
-		if (msg?.deviceSentMessage?.message?.listMessage && msg?.deviceSentMessage?.message?.listMessage?.productListInfo) {
-			msg = JSON.parse(JSON.stringify(msg))
-  
-			msg.deviceSentMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.PRODUCT_LIST
-		}
-		
-		if (msg?.viewOnceMessage?.message?.listMessage && msg?.viewOnceMessage?.message?.listMessage?.productListInfo) {
-			msg = JSON.parse(JSON.stringify(msg))
-  
-			msg.viewOnceMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.PRODUCT_LIST
-		}
-  
-		if (msg?.listMessage && msg?.listMessage?.productListInfo) {
-			msg = JSON.parse(JSON.stringify(msg))
-  
-			msg.listMessage!.listType = proto.Message.ListMessage.ListType.PRODUCT_LIST
-		}
-		
-		if (msg?.deviceSentMessage?.message?.listMessage && (msg?.deviceSentMessage?.message?.listMessage?.sections && msg?.deviceSentMessage?.message?.listMessage?.sections?.length > 0)) {
+		if (msg?.deviceSentMessage?.message?.listMessage && msg?.deviceSentMessage?.message?.listMessage?.sections) {
 			msg = JSON.parse(JSON.stringify(msg))
   
 			msg.deviceSentMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
-		}
-		
-		if (msg?.viewOnceMessage?.message?.listMessage && (msg?.viewOnceMessage?.message?.listMessage?.sections && msg?.viewOnceMessage?.message?.listMessage?.sections?.length > 0)) {
-			msg = JSON.parse(JSON.stringify(msg))
+		}		
   
-			msg.viewOnceMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
-		}
-  
-		if (msg?.listMessage && (msg?.listMessage?.sections && msg?.listMessage?.sections?.length > 0)) {
+		if (msg?.listMessage && msg?.listMessage?.sections) {
 			msg = JSON.parse(JSON.stringify(msg))
   
 			msg.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
@@ -672,9 +648,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     } else {
                       (stanza.content as BinaryNode[]).push(botNode)
                     }
-				}              
-
-				const buttonType = getButtonType(message)
+				} 
+				
+                const buttonType = getButtonType(message)
 				if(buttonType) {
 					(stanza.content as BinaryNode[]).push({
 						tag: 'biz',
@@ -696,7 +672,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			}
 		)
 
-		return msgId
+		return message
 	}
 
 
@@ -783,16 +759,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	}
 
 	const getButtonType = (message: proto.IMessage) => {
-		if(message.buttonsMessage) {
-			return 'buttons'
-		} else if(message.buttonsResponseMessage) {
-			return 'buttons_response'
-		} else if(message.interactiveResponseMessage) {
-			return 'interactive_response'
-		} else if(message.listMessage) {
+	    const Msg = normalizeMessageContent(message)!
+		if(Msg.listMessage) {
 			return 'list'
-		} else if(message.listResponseMessage) {
-			return 'list_response'
 		}
 	}
 
