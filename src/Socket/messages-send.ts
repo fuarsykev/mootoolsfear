@@ -1098,7 +1098,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	            const { server } = jidDecode(jid)!
 	            const isGroup = server === 'g.us'
 
-                let eph: number | 0;
+                let eph;
 		        if(isGroup) {
                     const disappearingNode = await query({
 			            tag: 'iq',
