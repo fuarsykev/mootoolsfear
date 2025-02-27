@@ -322,9 +322,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 				// eslint-disable-next-line camelcase
 				push_priority: 'high_force',
 			},
-		})!
+		})
 
-		return msgId
+		return msgId!
 	}
 
 	const createParticipantNodes = async(
@@ -672,7 +672,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			}
 		)
 
-		return message
+		return msgId
 	}
 
 
