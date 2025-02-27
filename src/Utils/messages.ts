@@ -29,7 +29,7 @@ import { getBinaryNodeChild, isJidGroup, isJidNewsLetter, isJidStatusBroadcast, 
 import { sha256 } from './crypto'
 import { generateMessageID, getKeyAuthor, unixTimestampSeconds } from './generics'
 import { downloadContentFromMessage, encryptedStream, generateThumbnail, getAudioDuration, getAudioWaveform, MediaDownloadOptions, prepareStream } from './messages-media'
-import { makeMessagesSocket } from '../Socket/messages-send'
+import { Socket } from '../Socket/socket'
 
 type MediaUploadData = {
 	media: WAMediaUpload
@@ -1046,8 +1046,7 @@ export const getEphemeralExpiration = async(
 	message: WAMessageContent,
 ) => {
     jid = jidNormalizedUser(jid)!
-    const config = SocketConfig
-    const sock = makeMessagesSocket(config)
+    const sock = Socket
     const {
 		authState,
 		query
