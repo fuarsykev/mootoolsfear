@@ -1104,7 +1104,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		        if(isNewsletter) {
                    eph = 0
                 } else if(isPrivate) {
-		            eph = options.ephemeralExpiration === 0 ? 84000 : options.ephemeralExpiration
+                    if (options.ephemeralExpiration) {
+                        eph = options.ephemeralExpiration
+                    } else {
+		                eph = 84000
+		            }
 		        } else if(isGroup) {
                     const disappearingNode = await query({
 			            tag: 'iq',
@@ -1122,7 +1126,11 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     })
                     const group = getBinaryNodeChild(disappearingNode, 'group')!
                     const expiration = getBinaryNodeChild(group, 'ephemeral')!
-                    eph = options.ephemeralExpiration === 0 ? expiration?.attrs?.expiration : options.ephemeralExpiration
+                    if (options.ephemeralExpiration) {
+                        eph = options.ephemeralExpiration
+                    } else {
+                        eph = expiration?.attrs?.expiration
+                    }
                 }
                 
 				const fullMsg = await generateWAMessage(
