@@ -1096,10 +1096,16 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			} else {
 				let mediaHandle  
 	            const { server } = jidDecode(jid)!
+	            const isPrivate = server === 's.whatsapp.net'
 	            const isGroup = server === 'g.us'
+	            const isNewsletter = server === 'newsletter'
 
                 let eph;
-		        if(isGroup) {
+		        if(isNewsletter) {
+                   eph = 0
+                } else if(isPrivate) {
+		            eph = options.ephemeralExpiration === 0 ? 84000 : options.ephemeralExpiration
+		        } else if(isGroup) {
                     const disappearingNode = await query({
 			            tag: 'iq',
 			            attrs: {
@@ -1116,13 +1122,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     })
                     const group = getBinaryNodeChild(disappearingNode, 'group')!
                     const expiration = getBinaryNodeChild(group, 'ephemeral')!
-                    if (!expiration) {
-                        eph = 0
-                    } else {
-                        eph = expiration?.attrs?.expiration
-                    }
-                } else {
-                   eph = 0
+                    eph = options.ephemeralExpiration === 0 ? expiration?.attrs?.expiration : options.ephemeralExpiration
                 }
                 
 				const fullMsg = await generateWAMessage(
