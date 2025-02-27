@@ -24,10 +24,11 @@ import {
 	WAProto,
 	WATextMessage,
 } from '../Types'
-import { isJidGroup, isJidNewsLetter, isJidStatusBroadcast, jidNormalizedUser } from '../WABinary'
+import { getBinaryNodeChild, isJidGroup, isJidNewsLetter, isJidStatusBroadcast, jidNormalizedUser, S_WHATSAPP_NET } from '../WABinary'
 import { sha256 } from './crypto'
 import { generateMessageID, getKeyAuthor, unixTimestampSeconds } from './generics'
 import { downloadContentFromMessage, encryptedStream, generateThumbnail, getAudioDuration, getAudioWaveform, MediaDownloadOptions, prepareStream } from './messages-media'
+import { makeMessagesSocket } from '../Socket'
 
 type MediaUploadData = {
 	media: WAMediaUpload
@@ -1037,6 +1038,55 @@ export const generateWAMessageContent = async(
 	}
 
 	return WAProto.Message.fromObject(m)
+}
+
+export const getEphemeralExpiration = (config: SocketConfig, message: WAMessageContent) => {
+    const sock = makeMessagesSocket(config)
+    const {
+		authState,
+		query
+	} = sock
+
+    const innerMessage = normalizeMessageContent(message)!
+	const key: string = getContentType(innerMessage)!
+    let eph;
+		if(isPrivate) {
+		    const disappearingNode = await query({
+			      tag: 'iq',
+			      attrs: {
+				     type: 'get',
+				     xmlns: 'disappearing_mode',
+				     to: S_WHATSAPP_NET,
+			      },
+            })
+            const expiration =  getBinaryNodeChild(disappearingNode, 'disappearing_mode')!
+            return eph = expiration?.attrs?.duration
+        } else if(isGroup) {
+            const disappearingNode = await query({
+			       tag: 'iq',
+			       attrs: {
+				       type: 'get',
+				       xmlns: 'w:g2',
+				       to: jid,
+			       },
+			       content: [
+			           {
+			              tag: 'query', 
+			              attrs: { request: 'interactive' }
+			           } 
+			       ]
+            })
+            const group = getBinaryNodeChild(disappearingNode, 'group')!
+            const expiration = getBinaryNodeChild(group, 'ephemeral')!
+            return eph = expiration?.attrs?.expiration
+        }
+        
+        const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)!.contextInfo : innerMessage[key].contextInfo) || { }   
+
+	return innerMessage[key].contextInfo = {
+	     ...(innerMessage[key].contextInfo || {}),
+	     expiration: eph,
+    }
 }
 
 export const generateWAMessageFromContent = (
