@@ -1069,7 +1069,16 @@ export const generateWAMessageFromContent = (
 			delete quotedContent.contextInfo
 		}
 		
-		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? (innerMessage.requestPaymentMessage?.noteMessage?.extendedTextMessage || innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage)!.contextInfo : innerMessage[key].contextInfo) || { }
+		let requestPayment;
+		if(key === 'requestPaymentMessage') {
+		    if(innerMessage?.requestPaymentMessage?.noteMessage && innerMessage?.requestPaymentMessage?.noteMessage?.extendedTextMessage) {
+		        requestPayment = innerMessage?.requestPaymentMessage?.noteMessage?.extendedTextMessage
+            } else if(innerMessage?.requestPaymentMessage?.noteMessage && innerMessage?.requestPaymentMessage?.noteMessage?.stickerMessage
+                requestPayment = innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage
+            }
+		}
+		
+		const contextInfo: proto.IContextInfo = (key ==='requestPaymentMessage' ? requestPayment.contextInfo : innerMessage[key].contextInfo) || { }
 		contextInfo.participant = jidNormalizedUser(participant!)
 		contextInfo.stanzaId = quoted.key.id
 		contextInfo.quotedMessage = quotedMsg
