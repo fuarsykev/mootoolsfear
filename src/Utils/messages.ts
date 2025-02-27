@@ -1041,7 +1041,7 @@ export const generateWAMessageContent = async(
 	return WAProto.Message.fromObject(m)
 }
 
-export const getEphemeralExpiration = (
+export const getEphemeralExpiration = async(
 	jid: string,
 	message: WAMessageContent,
     config: SocketConfig
@@ -1062,7 +1062,7 @@ export const getEphemeralExpiration = (
 	const key: string = getContentType(innerMessage)!
     let eph;
 		if(isPrivate) {
-		    const disappearingNode = query({
+		    const disappearingNode = await query({
 			      tag: 'iq',
 			      attrs: {
 				     type: 'get',
@@ -1073,7 +1073,7 @@ export const getEphemeralExpiration = (
             const expiration =  getBinaryNodeChild(disappearingNode, 'disappearing_mode')!
             return eph = expiration?.attrs?.duration
         } else if(isGroup) {
-            const disappearingNode = query({
+            const disappearingNode = await query({
 			       tag: 'iq',
 			       attrs: {
 				       type: 'get',
