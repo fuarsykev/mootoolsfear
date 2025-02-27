@@ -1080,7 +1080,41 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			content: AnyMessageContent,
 			options: MiscMessageGenerationOptions = { }
 		) => {
-			const userJid = authState.creds.me!.id            
+			const userJid = authState.creds.me!.id    
+			   
+	        const { server } = jidDecode(jid)!
+	        const isGroup = server === 'g.us'
+
+            const innerMessage = normalizeMessageContent(content)!
+	        const key: string = getContentType(innerMessage)!
+            let eph;
+		    if(isGroup) {
+                const disappearingNode = await query({
+			        tag: 'iq',
+			        attrs: {
+				        type: 'get',
+				        xmlns: 'w:g2',
+				        to: jid,
+			        },
+			        content: [
+			            {
+			                tag: 'query', 
+			                attrs: { request: 'interactive' }
+			            } 
+			        ]
+                })
+                const group = getBinaryNodeChild(disappearingNode, 'group')!
+                const expiration = getBinaryNodeChild(group, 'ephemeral')!
+                return eph = expiration?.attrs?.expiration
+            } else {
+                return eph = 0
+            }
+        
+            const contextInfo: proto.IContextInfo = (content?.requestPayment ? content?.requestPayment?.contextInfo : content?.contextInfo) || { }     
+            content?.contextInfo = {
+	            ...(content.contextInfo || {}),
+	            expiration: options.ephemeralExpiration || eph,
+            } 
 
 			if(
 				typeof content === 'object' &&
@@ -1124,7 +1158,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						options: config.options,
 						...options,
 					}
-				)
+				)                          
 				const isAiMsg = 'ai' in content && !!content.ai
 				const isPinMsg = 'pin' in content && !!content.pin;
 				const isKeepMsg = 'keep' in content && content.keep;
