@@ -17,7 +17,6 @@ import {
 	MessageGenerationOptionsFromContent,
 	MessageType,
 	MessageUserReceipt,
-	SocketConfig,
 	WAMediaUpload,
 	WAMessage,
 	WAMessageContent,
@@ -25,7 +24,7 @@ import {
 	WAProto,
 	WATextMessage,
 } from '../Types'
-import { getBinaryNodeChild, isJidGroup, isJidNewsLetter, isJidStatusBroadcast, jidDecode, jidNormalizedUser, S_WHATSAPP_NET } from '../WABinary'
+import { isJidGroup, isJidNewsLetter, isJidStatusBroadcast, jidNormalizedUser } from '../WABinary'
 import { sha256 } from './crypto'
 import { generateMessageID, getKeyAuthor, unixTimestampSeconds } from './generics'
 import { downloadContentFromMessage, encryptedStream, generateThumbnail, getAudioDuration, getAudioWaveform, MediaDownloadOptions, prepareStream } from './messages-media'
