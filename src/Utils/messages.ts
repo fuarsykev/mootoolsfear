@@ -1062,7 +1062,7 @@ export const getEphemeralExpiration = (
 	const key: string = getContentType(innerMessage)!
     let eph;
 		if(isPrivate) {
-		    const disappearingNode = await query({
+		    const disappearingNode = query({
 			      tag: 'iq',
 			      attrs: {
 				     type: 'get',
@@ -1073,7 +1073,7 @@ export const getEphemeralExpiration = (
             const expiration =  getBinaryNodeChild(disappearingNode, 'disappearing_mode')!
             return eph = expiration?.attrs?.duration
         } else if(isGroup) {
-            const disappearingNode = await query({
+            const disappearingNode = query({
 			       tag: 'iq',
 			       attrs: {
 				       type: 'get',
