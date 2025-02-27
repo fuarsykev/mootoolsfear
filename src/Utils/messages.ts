@@ -1044,10 +1044,9 @@ export const generateWAMessageContent = async(
 export const getEphemeralExpiration = async(
 	jid: string,
 	message: WAMessageContent,
-    config: SocketConfig
 ) => {
-    
     jid = jidNormalizedUser(jid)!
+    const config = SocketConfig
     const sock = makeMessagesSocket(config)
     const {
 		authState,
