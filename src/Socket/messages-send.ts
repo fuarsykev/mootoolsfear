@@ -1085,8 +1085,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	        const { server } = jidDecode(jid)!
 	        const isGroup = server === 'g.us'
 
-            const innerMessage = normalizeMessageContent(content)!
-	        const key: string = getContentType(innerMessage)!
             let eph;
 		    if(isGroup) {
                 const disappearingNode = await query({
@@ -1109,12 +1107,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             } else {
                 return eph = 0
             }
-        
-            const contextInfo: proto.IContextInfo = (content?.requestPayment ? content?.requestPayment?.contextInfo : content?.contextInfo) || { }     
-            content?.contextInfo = {
-	            ...(content.contextInfo || {}),
-	            expiration: options.ephemeralExpiration || eph,
-            } 
 
 			if(
 				typeof content === 'object' &&
@@ -1135,6 +1127,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					{
 						logger,
 						userJid,
+						ephemeralExpiration: options.ephemeralExpiration || eph,
 						getUrlInfo: text => getUrlInfo(
 							text,
 							{
