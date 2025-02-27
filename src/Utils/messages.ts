@@ -1073,7 +1073,7 @@ export const generateWAMessageFromContent = (
 		if(key === 'requestPaymentMessage') {
 		    if(innerMessage?.requestPaymentMessage?.noteMessage && innerMessage?.requestPaymentMessage?.noteMessage?.extendedTextMessage) {
 		        requestPayment = innerMessage?.requestPaymentMessage?.noteMessage?.extendedTextMessage
-            } else if(innerMessage?.requestPaymentMessage?.noteMessage && innerMessage?.requestPaymentMessage?.noteMessage?.stickerMessage
+            } else if(innerMessage?.requestPaymentMessage?.noteMessage && innerMessage?.requestPaymentMessage?.noteMessage?.stickerMessage) {
                 requestPayment = innerMessage.requestPaymentMessage?.noteMessage?.stickerMessage
             }
 		}
