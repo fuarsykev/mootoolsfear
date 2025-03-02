@@ -626,7 +626,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 			   					  tag: 'native_flow',
 			   					  attrs: { 
 			   					     name: 'quick_reply',
-			   				      }
+			   					     v: '1',
+			   				      },
+			   				      content: undefined
 							  }]
     					  }]
 				    }
@@ -759,8 +761,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	}
 
 	const getButtonType = (message: proto.IMessage) => {
-	    const Msg = normalizeMessageContent(message)!
-		if(Msg.listMessage) {
+		if(message.listMessage) {
 			return 'list'
 		}
 	}
