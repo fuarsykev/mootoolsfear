@@ -35,13 +35,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	} = sock
 
     const patchMessageRequiresBeforeSending = (msg: proto.IMessage, recipientJids: string[]): proto.IMessage => {
-		if (msg?.deviceSentMessage?.message?.listMessage && msg?.deviceSentMessage?.message?.listMessage?.sections) {
+		if (msg?.deviceSentMessage?.message?.listMessage && (msg?.deviceSentMessage?.message?.listMessage?.sections && msg?.deviceSentMessage?.message?.listMessage?.sections?.length > 0)) {
 			msg = JSON.parse(JSON.stringify(msg))
   
 			msg.deviceSentMessage!.message!.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
 		}		
   
-		if (msg?.listMessage && msg?.listMessage?.sections) {
+		if (msg?.listMessage && (msg?.listMessage?.sections && msg?.listMessage?.sections?.length > 0)) {
 			msg = JSON.parse(JSON.stringify(msg))
   
 			msg.listMessage!.listType = proto.Message.ListMessage.ListType.SINGLE_SELECT
