@@ -420,9 +420,15 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-           let pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview')
-		   const { thumbnail } = await generateThumbnail(pfpUrl!, 'image', options)
-		   m.groupInviteMessage.jpegThumbnail = thumbnail
+			let pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview').catch(_ => null)
+			if(pfpUrl) {
+				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+				if(resp.status === 200) {
+					m.groupInviteMessage.jpegThumbnail = resp.data
+				}
+			} else {
+			    m.groupInviteMessage.jpegThumbnail = null
+			}
 		}
    } else if('pin' in message) {
         m.pinInChatMessage = {};
@@ -607,9 +613,15 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-           let pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview')
-		   const { thumbnail } = await generateThumbnail(pfpUrl!, 'image', options)
-		   m.newsletterAdminInviteMessage.jpegThumbnail = thumbnail
+			let pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview').catch(_ => null)
+			if(pfpUrl) {
+				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+				if(resp.status === 200) {
+					m.newsletterAdminInviteMessage.jpegThumbnail = resp.data
+				}
+			} else {
+			    m.newsletterAdminInviteMessage.jpegThumbnail = null
+			}
 		}
    } else if ('requestPayment' in message) {  
        const sticker = message?.requestPayment?.sticker ?
