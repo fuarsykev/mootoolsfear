@@ -1170,6 +1170,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						logger,
 						userJid,
 						ephemeralExpiration: (options.ephemeralExpiration && options.ephemeralExpiration > 0) ? options.ephemeralExpiration : eph,
+						getProfilePicUrl: profilePictureUrl,
 						getUrlInfo: text => getUrlInfo(
 							text,
 							{
@@ -1191,7 +1192,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						},
 						mediaCache: config.mediaCache,
 						options: config.options,
-						...(options.getProfilePicUrl ? { getProfilePicUrl: profilePictureUrl } : {}),
 						...options,
 					}
 				)                          
