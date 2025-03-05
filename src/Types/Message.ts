@@ -426,6 +426,8 @@ export type MiscMessageGenerationOptions = MinimalRelayOptions & {
     broadcast?: boolean
     /** delay of message time */
     delay?: number
+    /** get profile picture */
+    getProfilePicUrl?: (jid: string, type: 'image' | 'preview') => Promise<string | undefined>
 }
 export type MessageGenerationOptionsFromContent = MiscMessageGenerationOptions & {
 	userJid: string
