@@ -421,8 +421,8 @@ export const generateWAMessageContent = async(
         if(message.groupInvite.thumbnail) {
            m.groupInviteMessage.jpegThumbnail = message.groupInvite.thumbnail
         } else if(options.getProfilePicUrl) {
-           const pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview')
-		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image', options)
+           let pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview')
+		   const { thumbnail } = await generateThumbnail(pfpUrl!, 'image', options)
 		   m.groupInviteMessage.jpegThumbnail = thumbnail
 		}
    } else if('pin' in message) {
@@ -609,8 +609,8 @@ export const generateWAMessageContent = async(
         if(message.inviteAdmin.thumbnail) {
            m.newsletterAdminInviteMessage.jpegThumbnail = message.inviteAdmin.thumbnail;
         } else if(options.getProfilePicUrl) {
-           const pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview')
-		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image', options)
+           let pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview')
+		   const { thumbnail } = await generateThumbnail(pfpUrl!, 'image', options)
 		   m.newsletterAdminInviteMessage.jpegThumbnail = thumbnail
 		}
    } else if ('requestPayment' in message) {  
