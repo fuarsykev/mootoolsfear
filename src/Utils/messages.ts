@@ -420,20 +420,9 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-           let pfpUrl
-           try {
-			   pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview')
-		   } catch {
-		       pfpUrl = null
-		   }
-			if(pfpUrl) {
-				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
-				if(resp.status === 200) {
-					m.groupInviteMessage.jpegThumbnail = resp.data
-				} 
-			} else {
-			    m.groupInviteMessage.jpegThumbnail = null
-	        }
+           let pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid)
+		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image')
+		   m.groupInviteMessage.jpegThumbnail = thumbnail
 		}
    } else if('pin' in message) {
         m.pinInChatMessage = {};
@@ -618,20 +607,9 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-           let pfpUrl
-           try {
-			   pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview')
-		   } catch {
-		       pfpUrl = null
-		   }
-			if(pfpUrl) {
-				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
-				if(resp.status === 200) {
-					m.groupInviteMessage.jpegThumbnail = resp.data
-				} 
-			} else {
-			    m.groupInviteMessage.jpegThumbnail = null
-	        }
+           let pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid)
+		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image')
+		   m.newsletterAdminInviteMessage.jpegThumbnail = thumbnail
 		}
    } else if ('requestPayment' in message) {  
        const sticker = message?.requestPayment?.sticker ?
