@@ -5,7 +5,7 @@ import { ALL_WA_PATCH_NAMES, ChatModification, ChatMutation, LTHashState, Messag
 import { chatModificationToAppPatch, ChatMutationMap, decodePatches, decodeSyncdSnapshot, encodeSyncdPatch, extractSyncdPatches, getUrlFromDirectPath, generateProfilePicture, getHistoryMsg, newLTHashState, processSyncAction } from '../Utils'
 import { makeMutex } from '../Utils/make-mutex'
 import processMessage from '../Utils/process-message'
-import { BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, isJidNewsletter, jidNormalizedUser, reduceBinaryNodeToDictionary, S_WHATSAPP_NET } from '../WABinary'
+import { BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, isJidNewsLetter, jidNormalizedUser, reduceBinaryNodeToDictionary, S_WHATSAPP_NET } from '../WABinary'
 import { makeSocket } from './socket'
 
 const MAX_SYNC_ATTEMPTS = 2
@@ -183,7 +183,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 	)
 	if (result) {
 		const lid = getBinaryNodeChild(result, 'lid')
-		return lid.attrs.val
+		return lid!.attrs!.val
 	}
   }
 
@@ -570,7 +570,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
     if (isJidNewsletter(jid)) {
       const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
 		input: {
-		  key,
+		  key: jid,
 		  type: "JID",
 		  'view_role': 'GUEST'
 		},
