@@ -615,6 +615,24 @@ export const generateWAMessageContent = async(
         m.newsletterAdminInviteMessage.newsletterJid = message.inviteAdmin.jid;
         m.newsletterAdminInviteMessage.newsletterName = message.inviteAdmin.subject;
         m.newsletterAdminInviteMessage.jpegThumbnail = message.inviteAdmin.thumbnail;
+        //TODO: use built-in interface and get disappearing mode info etc.
+        //TODO: cache / use store!?
+        if(options.getProfilePicUrl) {
+           let pfpUrl
+           try {
+			   pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview')
+		   } catch {
+		       pfpUrl = null
+		   }
+			if(pfpUrl) {
+				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+				if(resp.status === 200) {
+					m.groupInviteMessage.jpegThumbnail = resp.data
+				} 
+			} else {
+			    m.groupInviteMessage.jpegThumbnail = null
+	        }
+		}
    } else if ('requestPayment' in message) {  
        const sticker = message?.requestPayment?.sticker ?
           await prepareWAMessageMedia(
