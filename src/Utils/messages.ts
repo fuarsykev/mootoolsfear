@@ -416,14 +416,15 @@ export const generateWAMessageContent = async(
         m.groupInviteMessage.caption = message.groupInvite.text;
         m.groupInviteMessage.groupJid = message.groupInvite.jid;
         m.groupInviteMessage.groupName = message.groupInvite.subject;
-        m.groupInviteMessage.jpegThumbnail = message.groupInvite.thumbnail
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
            const pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid)
 		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image')
 		   m.groupInviteMessage.jpegThumbnail = thumbnail
-		}
+		} else if(message.groupInvite.thumbnail) {
+           m.groupInviteMessage.jpegThumbnail = message.groupInvite.thumbnail
+        }
    } else if('pin' in message) {
         m.pinInChatMessage = {};
         m.messageContextInfo = {};
@@ -603,14 +604,15 @@ export const generateWAMessageContent = async(
         m.newsletterAdminInviteMessage.caption = message.inviteAdmin.text;
         m.newsletterAdminInviteMessage.newsletterJid = message.inviteAdmin.jid;
         m.newsletterAdminInviteMessage.newsletterName = message.inviteAdmin.subject;
-        m.newsletterAdminInviteMessage.jpegThumbnail = message.inviteAdmin.thumbnail;
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
            const pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid)
 		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image')
 		   m.newsletterAdminInviteMessage.jpegThumbnail = thumbnail
-		}
+		} else if(message.inviteAdmin.thumbnail) {
+           m.newsletterAdminInviteMessage.jpegThumbnail = message.inviteAdmin.thumbnail;
+        }
    } else if ('requestPayment' in message) {  
        const sticker = message?.requestPayment?.sticker ?
           await prepareWAMessageMedia(
