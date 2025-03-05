@@ -420,7 +420,7 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-           let pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid)
+           const pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid)
 		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image')
 		   m.groupInviteMessage.jpegThumbnail = thumbnail
 		}
@@ -607,7 +607,7 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-           let pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid)
+           const pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid)
 		   const { thumbnail } = await generateThumbnail(pfpUrl, 'image')
 		   m.newsletterAdminInviteMessage.jpegThumbnail = thumbnail
 		}
