@@ -27,8 +27,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
     generateMessageTag,
     sendNode,
     query,
-    onUnexpectedError,
-    newsletterWMexQuery,
+    onUnexpectedError
   } = sock
 
   let privacySettings: {
@@ -567,8 +566,8 @@ export const makeChatsSocket = (config: SocketConfig) => {
    */
   const profilePictureUrl = async (jid: string, type: 'preview' | 'image' = 'preview', timeoutMs ? : number) => {
     jid = jidNormalizedUser(jid)
-    if (isJidNewsletter(jid)) {
-      const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
+    if (isJidNewsLetter(jid)) {
+      const node = await sock.newsletterWMexQuery(undefined, QueryIds.METADATA, {
 		input: {
 		  key: jid,
 		  type: "JID",
