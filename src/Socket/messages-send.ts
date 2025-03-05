@@ -169,7 +169,40 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		// based on privacy settings, we have to change the read type
 		const readType = privacySettings.readreceipts === 'all' ? 'read' : 'read-self'
 		await sendReceipts(keys, readType)
- 	}
+ 	} 	
+	
+	const profilePictureUrl = async (jid: string, type: 'preview' | 'image' = 'preview', timeoutMs ? : number) => {
+        jid = jidNormalizedUser(jid)
+        if (isJidNewsLetter(jid)) {
+            const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
+		       input: {
+		          key: jid,
+		          type: "JID",
+		          'view_role': 'GUEST'
+		       },
+		       'fetch_full_image': true,
+	        })	  
+	        const result = getBinaryNodeChild(node, 'result')?.content?.toString()
+	        const metadataPath = JSON.parse(result!).data[XWAPaths.NEWSLETTER]
+	        const pictype = type === 'image' ? 'picture' : 'preview'
+	        return getUrlFromDirectPath(metadataPath?.thread_metadata[pictype]?.direct_path) || null
+        } else {
+            const result = await query({
+                tag: 'iq',
+                attrs: {
+                    target: jid,
+                    to: S_WHATSAPP_NET,
+                    type: 'get',
+                    xmlns: 'w:profile:picture'
+                },
+                content: [
+                    { tag: 'picture', attrs: { type, query: 'url' } }
+                ]
+            }, timeoutMs)
+            const child = getBinaryNodeChild(result, 'picture')
+            return child?.attrs?.url
+        }
+    }
 
 	/** Fetch all the devices we've to send a message to */
 	const getUSyncDevices = async(jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => {
@@ -813,39 +846,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 		return result
 	}
-	
-	const profilePictureUrl = async (jid: string, type: 'preview' | 'image' = 'preview', timeoutMs ? : number) => {
-        jid = jidNormalizedUser(jid)
-        if (isJidNewsLetter(jid)) {
-            const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
-		       input: {
-		          key: jid,
-		          type: "JID",
-		          'view_role': 'GUEST'
-		       },
-		       'fetch_full_image': true,
-	        })	  
-	        const result = getBinaryNodeChild(node, 'result')?.content?.toString()
-	        const metadataPath = JSON.parse(result!).data[XWAPaths.NEWSLETTER]
-	        const pictype = type === 'image' ? 'picture' : 'preview'
-	        return getUrlFromDirectPath(metadataPath.thread_metadata[pictype]?.direct_path) || null
-        } else {
-            const result = await query({
-                tag: 'iq',
-                attrs: {
-                    target: jid,
-                    to: S_WHATSAPP_NET,
-                    type: 'get',
-                    xmlns: 'w:profile:picture'
-                },
-                content: [
-                    { tag: 'picture', attrs: { type, query: 'url' } }
-                ]
-            }, timeoutMs)
-            const child = getBinaryNodeChild(result, 'picture')
-            return child?.attrs?.url
-        }
-    }
 
 	const waUploadToServer = getWAUploadToServer(config, refreshMediaConn)
 
@@ -1141,11 +1141,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		        if(isNewsletter) {
                    eph = 0
                 } else if(isPrivate) {
-                    if (options.ephemeralExpiration) {
-                        eph = options.ephemeralExpiration
-                    } else {
-		                eph = 84000
-		            }
+                    eph = 84000
 		        } else if(isGroup) {
                     const disappearingNode = await groupQuery(jid, 'get', [
 			                {
@@ -1156,11 +1152,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                     )
                     const group = getBinaryNodeChild(disappearingNode, 'group')!
                     const expiration = getBinaryNodeChild(group, 'ephemeral')!
-                    if (options.ephemeralExpiration) {
-                        eph = options.ephemeralExpiration
-                    } else {
-                        eph = expiration?.attrs?.expiration
-                    }
+                    eph = expiration?.attrs?.expiration
                 }
                 
 				const fullMsg = await generateWAMessage(
@@ -1170,7 +1162,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 						logger,
 						userJid,
 						ephemeralExpiration: (options.ephemeralExpiration && options.ephemeralExpiration > 0) ? options.ephemeralExpiration : eph,
-						getProfilePicUrl: profilePictureUrl,
 						getUrlInfo: text => getUrlInfo(
 							text,
 							{
@@ -1185,6 +1176,8 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 									: undefined
 							},
 						),
+                        //TODO: CACHE
+                        getProfilePicUrl: profilePictureUrl!,
 						upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
 							const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
 							mediaHandle = up.handle
