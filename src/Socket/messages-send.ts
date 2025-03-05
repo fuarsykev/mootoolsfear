@@ -1176,8 +1176,6 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 									: undefined
 							},
 						),
-                        //TODO: CACHE
-                        getProfilePicUrl: profilePictureUrl!,
 						upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
 							const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
 							mediaHandle = up.handle
