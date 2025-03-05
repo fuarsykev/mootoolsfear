@@ -1189,9 +1189,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							mediaHandle = up.handle
 							return up
 						},
-						getProfilePicUrl: options.getProfilePicUrl ? profilePictureUrl : null,
 						mediaCache: config.mediaCache,
 						options: config.options,
+						...(options.getProfilePicUrl ? { getProfilePicUrl: profilePictureUrl } : {}),
 						...options,
 					}
 				)                          
