@@ -1,11 +1,11 @@
 import { Boom } from '@hapi/boom'
 import { proto } from '../../WAProto'
 import { PROCESSABLE_HISTORY_TYPES } from '../Defaults'
-import { ALL_WA_PATCH_NAMES, ChatModification, ChatMutation, LTHashState, MessageUpsertType, PresenceData, SocketConfig, WABusinessHoursConfig, WABusinessProfile, WAMediaUpload, WAMessage, WAPatchCreate, WAPatchName, WAPresence, WAPrivacyOnlineValue, WAPrivacyValue, WAReadReceiptsValue } from '../Types'
-import { chatModificationToAppPatch, ChatMutationMap, decodePatches, decodeSyncdSnapshot, encodeSyncdPatch, extractSyncdPatches, generateProfilePicture, getHistoryMsg, newLTHashState, processSyncAction } from '../Utils'
+import { ALL_WA_PATCH_NAMES, ChatModification, ChatMutation, LTHashState, MessageUpsertType, PresenceData, QueryIds, SocketConfig, WABusinessHoursConfig, WABusinessProfile, WAMediaUpload, WAMessage, WAPatchCreate, WAPatchName, WAPresence, WAPrivacyOnlineValue, WAPrivacyValue, WAReadReceiptsValue, XWAPaths} from '../Types'
+import { chatModificationToAppPatch, ChatMutationMap, decodePatches, decodeSyncdSnapshot, encodeSyncdPatch, extractSyncdPatches, getUrlFromDirectPath, generateProfilePicture, getHistoryMsg, newLTHashState, processSyncAction } from '../Utils'
 import { makeMutex } from '../Utils/make-mutex'
 import processMessage from '../Utils/process-message'
-import { BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, jidNormalizedUser, reduceBinaryNodeToDictionary, S_WHATSAPP_NET } from '../WABinary'
+import { BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, isJidNewsletter, jidNormalizedUser, reduceBinaryNodeToDictionary, S_WHATSAPP_NET } from '../WABinary'
 import { makeSocket } from './socket'
 
 const MAX_SYNC_ATTEMPTS = 2
@@ -28,6 +28,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
     sendNode,
     query,
     onUnexpectedError,
+    newsletterWMexQuery,
   } = sock
 
   let privacySettings: {
@@ -62,6 +63,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 
     return privacySettings
   }
+  
 
   /** helper function to run a privacy IQ query */
   const privacyQuery = async (name: string, value: string) => {
@@ -122,7 +124,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
         attrs: {
           duration: duration.toString()
         }
-			}]
+      }]
     })
   }
 
@@ -166,6 +168,23 @@ export const makeChatsSocket = (config: SocketConfig) => {
     const users = getBinaryNodeChildren(listNode, 'user')
 
     return users
+  }
+  
+  const fetchUserLid = async (jid: string) => {
+	const [result] = await interactiveQuery([
+		{
+			tag: 'user',
+			attrs: { jid }
+		}
+	], {
+			tag: 'lid',
+			attrs: {}
+	  }
+	)
+	if (result) {
+		const lid = getBinaryNodeChild(result, 'lid')
+		return lid.attrs.val
+	}
   }
 
   const onWhatsApp = async (...jids: string[]) => {
@@ -548,20 +567,35 @@ export const makeChatsSocket = (config: SocketConfig) => {
    */
   const profilePictureUrl = async (jid: string, type: 'preview' | 'image' = 'preview', timeoutMs ? : number) => {
     jid = jidNormalizedUser(jid)
-    const result = await query({
-      tag: 'iq',
-      attrs: {
-        target: jid,
-        to: S_WHATSAPP_NET,
-        type: 'get',
-        xmlns: 'w:profile:picture'
-      },
-      content: [
-        { tag: 'picture', attrs: { type, query: 'url' } }
-			]
-    }, timeoutMs)
-    const child = getBinaryNodeChild(result, 'picture')
-    return child?.attrs?.url
+    if (isJidNewsletter(jid)) {
+      const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
+		input: {
+		  key,
+		  type: "JID",
+		  'view_role': 'GUEST'
+		},
+		'fetch_full_image': true,
+	  })	  
+	  const result = getBinaryNodeChild(node, 'result')?.content?.toString()
+	  const metadataPath = JSON.parse(result!).data[XWAPaths.NEWSLETTER]
+	  const pictype = type === 'image' ? 'picture' : 'preview'
+	  return getUrlFromDirectPath(metadataPath.thread_metadata[pictype]?.direct_path) || null
+    } else {
+      const result = await query({
+        tag: 'iq',
+        attrs: {
+          target: jid,
+          to: S_WHATSAPP_NET,
+          type: 'get',
+          xmlns: 'w:profile:picture'
+        },
+        content: [
+          { tag: 'picture', attrs: { type, query: 'url' } }
+        ]
+      }, timeoutMs)
+      const child = getBinaryNodeChild(result, 'picture')
+      return child?.attrs?.url
+    }
   }
 
   const sendPresenceUpdate = async (type: WAPresence, toJid ? : string) => {
@@ -995,10 +1029,12 @@ export const makeChatsSocket = (config: SocketConfig) => {
 
   return {
     ...sock,
+    interactiveQuery,
     processingMutex,
     fetchPrivacySettings,
     upsertMessage,
     appPatch,
+    fetchUserLid,
     sendPresenceUpdate,
     presenceSubscribe,
     profilePictureUrl,

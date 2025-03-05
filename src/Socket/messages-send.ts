@@ -31,6 +31,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		generateMessageTag,
 		sendNode,
 		groupMetadata,
+		groupQuery,
 		groupToggleEphemeral
 	} = sock
 
@@ -1111,20 +1112,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		                eph = 84000
 		            }
 		        } else if(isGroup) {
-                    const disappearingNode = await query({
-			            tag: 'iq',
-			            attrs: {
-				            type: 'get',
-				            xmlns: 'w:g2',
-				            to: jid,
-			            },
-			            content: [
+                    const disappearingNode = await groupQuery(jid, 'get', [
 			                {
 			                    tag: 'query', 
 			                    attrs: { request: 'interactive' }
 			                } 
 			            ]
-                    })
+                    )
                     const group = getBinaryNodeChild(disappearingNode, 'group')!
                     const expiration = getBinaryNodeChild(group, 'ephemeral')!
                     if (options.ephemeralExpiration) {
@@ -1140,7 +1134,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 					{
 						logger,
 						userJid,
-						ephemeralExpiration: options.ephemeralExpiration || eph,
+						ephemeralExpiration: (options.ephemeralExpiration && options.ephemeralExpiration > 0) ? options.ephemeralExpiration : eph,
 						getUrlInfo: text => getUrlInfo(
 							text,
 							{
