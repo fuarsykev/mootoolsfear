@@ -180,7 +180,9 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		          type: "JID",
 		          'view_role': 'GUEST'
 		       },
-		       'fetch_full_image': true,
+				'fetch_viewer_metadata': true,
+				'fetch_full_image': true,
+				'fetch_creation_time': true
 	        })	  
 	        const result = getBinaryNodeChild(node, 'result')?.content?.toString()
 	        const metadataPath = JSON.parse(result!).data[XWAPaths.NEWSLETTER]
@@ -1176,6 +1178,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 									: undefined
 							},
 						),
+						getProfilePicUrl: profilePictureUrl,
 						upload: async(readStream: Readable, opts: WAMediaUploadFunctionOpts) => {
 							const up = await waUploadToServer(readStream, { ...opts, newsletter: isJidNewsLetter(jid) })
 							mediaHandle = up.handle
