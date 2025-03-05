@@ -32,6 +32,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		sendNode,
 		groupMetadata,
 		groupQuery,
+		newsletterWMexQuery,
 		groupToggleEphemeral
 	} = sock
 
@@ -812,6 +813,39 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 
 		return result
 	}
+	
+	const profilePictureUrl = async (jid: string, type: 'preview' | 'image' = 'preview', timeoutMs ? : number) => {
+        jid = jidNormalizedUser(jid)
+        if (isJidNewsLetter(jid)) {
+            const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
+		       input: {
+		          key: jid,
+		          type: "JID",
+		          'view_role': 'GUEST'
+		       },
+		       'fetch_full_image': true,
+	        })	  
+	        const result = getBinaryNodeChild(node, 'result')?.content?.toString()
+	        const metadataPath = JSON.parse(result!).data[XWAPaths.NEWSLETTER]
+	        const pictype = type === 'image' ? 'picture' : 'preview'
+	        return getUrlFromDirectPath(metadataPath.thread_metadata[pictype]?.direct_path) || null
+        } else {
+            const result = await query({
+                tag: 'iq',
+                attrs: {
+                    target: jid,
+                    to: S_WHATSAPP_NET,
+                    type: 'get',
+                    xmlns: 'w:profile:picture'
+                },
+                content: [
+                    { tag: 'picture', attrs: { type, query: 'url' } }
+                ]
+            }, timeoutMs)
+            const child = getBinaryNodeChild(result, 'picture')
+            return child?.attrs?.url
+        }
+    }
 
 	const waUploadToServer = getWAUploadToServer(config, refreshMediaConn)
 
@@ -830,6 +864,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 		getUSyncDevices,
 		sendPeerDataOperationMessage,
 		createParticipantNodes,
+		profilePictureUrl,
 	    waUploadToServer,
 		fetchPrivacySettings,
 		updateMediaMessage: async(message: proto.IWebMessageInfo) => {
@@ -1154,6 +1189,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 							mediaHandle = up.handle
 							return up
 						},
+						getProfilePicUrl: profilePictureUrl,
 						mediaCache: config.mediaCache,
 						options: config.options,
 						...options,

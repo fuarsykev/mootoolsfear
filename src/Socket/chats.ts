@@ -7,7 +7,6 @@ import { makeMutex } from '../Utils/make-mutex'
 import processMessage from '../Utils/process-message'
 import { BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, isJidNewsLetter, jidNormalizedUser, reduceBinaryNodeToDictionary, S_WHATSAPP_NET } from '../WABinary'
 import { makeSocket } from './socket'
-import { makeNewsletterSocket } from './newsletter'
 
 const MAX_SYNC_ATTEMPTS = 2
 
@@ -29,8 +28,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
     generateMessageTag,
     sendNode,
     query,
-    onUnexpectedError,
-    newsletterWMexQuery
+    onUnexpectedError
   } = sock
 
   let privacySettings: {
@@ -567,38 +565,6 @@ export const makeChatsSocket = (config: SocketConfig) => {
    * type = "preview" for a low res picture
    * type = "image for the high res picture"
    */
-  const profilePictureUrl = async (jid: string, type: 'preview' | 'image' = 'preview', timeoutMs ? : number) => {
-    jid = jidNormalizedUser(jid)
-    if (isJidNewsLetter(jid)) {
-      const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
-		input: {
-		  key: jid,
-		  type: "JID",
-		  'view_role': 'GUEST'
-		},
-		'fetch_full_image': true,
-	  })	  
-	  const result = getBinaryNodeChild(node, 'result')?.content?.toString()
-	  const metadataPath = JSON.parse(result!).data[XWAPaths.NEWSLETTER]
-	  const pictype = type === 'image' ? 'picture' : 'preview'
-	  return getUrlFromDirectPath(metadataPath.thread_metadata[pictype]?.direct_path) || null
-    } else {
-      const result = await query({
-        tag: 'iq',
-        attrs: {
-          target: jid,
-          to: S_WHATSAPP_NET,
-          type: 'get',
-          xmlns: 'w:profile:picture'
-        },
-        content: [
-          { tag: 'picture', attrs: { type, query: 'url' } }
-        ]
-      }, timeoutMs)
-      const child = getBinaryNodeChild(result, 'picture')
-      return child?.attrs?.url
-    }
-  }
 
   const sendPresenceUpdate = async (type: WAPresence, toJid ? : string) => {
     const me = authState.creds.me!
@@ -1039,7 +1005,6 @@ export const makeChatsSocket = (config: SocketConfig) => {
     fetchUserLid,
     sendPresenceUpdate,
     presenceSubscribe,
-    profilePictureUrl,
     onWhatsApp,
     fetchBlocklist,
     fetchStatus,
