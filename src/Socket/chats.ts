@@ -7,6 +7,7 @@ import { makeMutex } from '../Utils/make-mutex'
 import processMessage from '../Utils/process-message'
 import { BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, isJidNewsLetter, jidNormalizedUser, reduceBinaryNodeToDictionary, S_WHATSAPP_NET } from '../WABinary'
 import { makeSocket } from './socket'
+import { makeNewsletterSocket } from './newsletter'
 
 const MAX_SYNC_ATTEMPTS = 2
 
@@ -20,6 +21,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
     shouldSyncHistoryMessage,
   } = config
   const sock = makeSocket(config)
+  sock = makeNewsletterSocket(config)
   const {
     ev,
     ws,
@@ -27,7 +29,8 @@ export const makeChatsSocket = (config: SocketConfig) => {
     generateMessageTag,
     sendNode,
     query,
-    onUnexpectedError
+    onUnexpectedError,
+    newsletterWMexQuery
   } = sock
 
   let privacySettings: {
@@ -567,7 +570,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
   const profilePictureUrl = async (jid: string, type: 'preview' | 'image' = 'preview', timeoutMs ? : number) => {
     jid = jidNormalizedUser(jid)
     if (isJidNewsLetter(jid)) {
-      const node = await sock.newsletterWMexQuery(undefined, QueryIds.METADATA, {
+      const node = await newsletterWMexQuery(undefined, QueryIds.METADATA, {
 		input: {
 		  key: jid,
 		  type: "JID",
