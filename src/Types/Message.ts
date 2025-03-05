@@ -226,7 +226,7 @@ export type GroupInviteInfo = {
     text: string
     jid: string
     subject: string
-    thumbnail: string
+    thumbnail: Buffer
 }
 
 export type PinInChatInfo = {
@@ -279,7 +279,7 @@ export type AdminInviteInfo = {
     text: string
     jid: string
     subject: string
-    thumbnail: string
+    thumbnail: Buffer
 }
 
 export type OrderInfo = {
