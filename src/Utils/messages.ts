@@ -620,7 +620,7 @@ export const generateWAMessageContent = async(
         if(options.getProfilePicUrl) {
 			let pfpUrl;
 			try {
-			   pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview');
+			   pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview');
 			} catch {
 			   pfpUrl = null
 			}
