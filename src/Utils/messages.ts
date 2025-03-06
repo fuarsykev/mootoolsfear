@@ -420,7 +420,12 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-			let pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview').catch(_ => null)
+			let pfpUrl;
+			try {
+			   pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview');
+			} catch {
+			   pfpUrl = null
+			}
 			if(pfpUrl) {
 				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
 				if(resp.status === 200) {
@@ -613,7 +618,12 @@ export const generateWAMessageContent = async(
         //TODO: use built-in interface and get disappearing mode info etc.
         //TODO: cache / use store!?
         if(options.getProfilePicUrl) {
-			let pfpUrl = await options.getProfilePicUrl(message.inviteAdmin.jid, 'preview').catch(_ => null)
+			let pfpUrl;
+			try {
+			   pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid, 'preview');
+			} catch {
+			   pfpUrl = null
+			}
 			if(pfpUrl) {
 				const resp = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
 				if(resp.status === 200) {
@@ -934,20 +944,21 @@ export const generateWAMessageContent = async(
                  )
               } 
               const msg: proto.Message.IInteractiveMessage = {
-                  header: WAProto.Message.InteractiveMessage.Header.fromObject({
+                  header: {
                       title,
                       hasMediaAttachment: true,
                       ...header
-                  }),
-                  body: WAProto.Message.InteractiveMessage.Body.fromObject({
+                  },
+                  body: {
                       text: caption
-                  }),
-                  footer: WAProto.Message.InteractiveMessage.Footer.fromObject({
+                  },
+                  footer: {
                       text: footer
-                  }),
-	              nativeFlowMessage: WAProto.Message.InteractiveMessage.NativeFlowMessage.fromObject({ 
+                  },
+	              nativeFlowMessage: { 
 	                  buttons,
-	              })
+	              },
+	              contextInfo: message.mentions ? { mentionedJid: message.mentions } : message.contextInfo
 	          } 
               return msg            
            }
