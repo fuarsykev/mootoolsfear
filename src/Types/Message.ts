@@ -127,6 +127,8 @@ type Cardsable = {
     cards?: Carousel[];
     title?: string;
     subtitle?: string;
+    mentions?: string[];
+    contextInfo?: proto.IContextInfo;
 }
 
 type Editable = {
