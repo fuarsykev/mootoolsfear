@@ -1,6 +1,6 @@
 {
   "name": "Felz-Bail",
-  "version": "7.1.4",
+  "version": "7.2.0",
   "description": "WhatsApp API Modification By Frrlz",
   "keywords": [
     "whatsapp",
@@ -17,7 +17,7 @@
     "url": "git@github.com:WhiskeySockets/Baileys.git"
   },
   "license": "MIT",
-  "author": "Adhiraj Singh",
+  "author": "kangfarrel",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
