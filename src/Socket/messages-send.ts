@@ -189,7 +189,7 @@ export const makeMessagesSocket = (config: SocketConfig) => {
 	        const metadataPath = JSON.parse(result!).data[XWAPaths.NEWSLETTER]
 	        const pictype = type === 'image' ? 'picture' : 'preview'
             const directPath = metadataPath?.thread_metadata[pictype]?.direct_path
-	        return directPath ? getUrlFromDirectPath() : null
+	        return directPath ? getUrlFromDirectPath(directPath) : null
         } else {
             const result = await query({
                 tag: 'iq',
