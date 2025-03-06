@@ -1015,6 +1015,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
     onWhatsApp,
     fetchBlocklist,
     fetchStatus,
+    fetchDisappearingDuration,
     updateProfilePicture,
     removeProfilePicture,
     updateProfileStatus,
