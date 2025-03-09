@@ -1042,10 +1042,10 @@ export const makeMessagesSocket = (config: SocketConfig) => {
             await relayMessage(jid, album.message!,
             { messageId: album.key.id! })
 
+            let mediaHandle;
+            let msg;
             for (const i in medias) {
                const media = medias[i]
-               let mediaHandle;
-               let msg;
                 if(media.image) {
                      msg = await generateWAMessage(
                          jid,
@@ -1083,11 +1083,13 @@ export const makeMessagesSocket = (config: SocketConfig) => {
                          }
                      )
                 }
-
-                msg.message.messageContextInfo = {
-                   messageAssociation: {
-                      associationType: 1,
-                      parentMessageKey: album.key!
+                
+                if(msg) {
+                   msg.message.messageContextInfo = {
+                      messageAssociation: {
+                         associationType: 1,
+                         parentMessageKey: album.key!
+                      }
                    }
                 }
 
