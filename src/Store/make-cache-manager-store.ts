@@ -1,4 +1,4 @@
-import { caching, Storage } from 'cache-manager'
+import { caching, Store } from 'cache-manager'
 import { proto } from '../../WAProto'
 import { AuthenticationCreds } from '../Types'
 import { BufferJSON, initAuthCreds } from '../Utils'
